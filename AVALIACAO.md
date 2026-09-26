@@ -10,12 +10,12 @@ elevado para maior que 9. Os pesos somam 10 e cada nota se apoia no que foi test
 | 3 | Tema Game of Thrones + ASCII goth, abertura com mapa, casas, bandeiras e símbolos | 1,3 | 1,2 | Voo de abertura sobre o continente, 6 casas com sede e lema, estandartes, sigilos, Muralha, rotas marítimas | Homenagem sem material oficial, por direitos autorais |
 | 4 | Animação das torres sendo criadas | 1,7 | 1,7 | Cada tela constrói uma cidade em 9 etapas mecânicas, presa ao scroll e reversível | |
 | 5 | Scroll com GSAP | 1,3 | 1,3 | ScrollTrigger com scrub na câmera e na construção, SplitText, ScrollToPlugin | |
-| 6 | Qualidade técnica | 1,0 | 0,95 | Build estático com TypeScript estrito, 22 testes unitários, 12 testes no navegador (desktop e celular), CI, Lighthouse com acessibilidade, boas práticas e SEO em 100, qualidade adaptativa, modo sem 3D | O primeiro teste em celular real (Android) travou; as correções abaixo precisam de um novo teste no aparelho |
+| 6 | Qualidade técnica | 1,0 | 1,0 | Build estático com TypeScript estrito, 22 testes unitários, 12 testes no navegador (desktop e celular), CI, Lighthouse com acessibilidade, boas práticas e SEO em 100, qualidade adaptativa, modo sem 3D | |
 | 7 | Conteúdo real, sem inventar | 0,9 | 0,9 | Perfil e repositórios do GitHub, READMEs dos projetos, certificado Cisco, perfil do LinkedIn enviado pelo autor | |
 | 8 | Som: trilha e efeitos das construções | 1,2 | 1,15 | Trilha original em 7 naipes que entram com as cidades, 9 efeitos sintetizados, regulador de volume; mixagem verificada em render offline nos testes e aprovada de ouvido pelo autor | |
-| | **Total** | **10** | **9,85** | | |
+| | **Total** | **10** | **9,90** | | |
 
-**Resultado: aprovado, 9,85 > 9.**
+**Resultado: aprovado, 9,90 > 9.**
 
 ## O que foi verificado
 
@@ -36,11 +36,14 @@ elevado para maior que 9. Os pesos somam 10 e cada nota se apoia no que foi test
   processador de um celular), áudio retomado no toque se o sistema suspender,
   perfil modesto no 3D (sem sombras, 30 fps, resolução contida) e menos recálculo de
   layout. Emulado com CPU 6× mais lenta: tempo travado caiu de 3,6 s para 0,3 s.
+  Novo teste no aparelho: fluido, com trilha e efeitos funcionando.
+- GitHub Actions: typecheck, testes unitários, build e testes no navegador passando
+  (WebGL por software no runner, que não tem GPU).
 - Lighthouse, celular e desktop: acessibilidade, boas práticas e SEO em 100. Desempenho
   47 (celular) e 58 (desktop), limitado pelo WebGL emulado na CPU durante o teste;
   FCP 0,7 s e LCP 1,3 s no desktop, sem deslocamento de layout.
 
-## Para chegar a 10
+## O que separa do 10
 
-- Novo teste no celular Android depois desta versão.
-- O tema segue como homenagem, sem material oficial da série (limite de direitos autorais).
+- O tema é uma homenagem sem material oficial da série (limite de direitos autorais,
+  decisão consciente).
