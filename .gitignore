@@ -1,13 +1,17 @@
-.snowflake/
-.vercel/
-
-# Environment variables
-.env*.local
-
-# Common ignores
+# Dependências e builds
 node_modules
 .next/
+out/
+
+# Variáveis de ambiente
+.env*.local
+
+# Cloudflare / wrangler
+.wrangler/
+
+# Sistema
 .DS_Store
+
 # Gerados pelo Next / TypeScript
 next-env.d.ts
 *.tsbuildinfo

@@ -1,4 +1,3 @@
-import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Cinzel, Cormorant_Garamond, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
@@ -8,8 +7,8 @@ const display = Cinzel({ subsets: ['latin'], weight: ['400', '600', '800'], vari
 const serif = Cormorant_Garamond({ subsets: ['latin'], weight: ['400', '500', '600'], style: ['normal', 'italic'], variable: '--font-serif', display: 'swap' })
 const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-mono', display: 'swap' })
 
-// URL pública: a Vercel preenche VERCEL_PROJECT_PRODUCTION_URL; em outro host, defina SITE_URL
-const siteUrl = process.env.SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:3000')
+// URL pública para o card de compartilhamento: SITE_URL (produção) ou a URL da build no Cloudflare Pages
+const siteUrl = process.env.SITE_URL ?? process.env.CF_PAGES_URL ?? 'http://localhost:3000'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -37,8 +36,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="pt-BR" className={`${display.variable} ${serif.variable} ${mono.variable}`}>
       <body className="antialiased">
         {children}
-        {/* O script de analytics só existe quando hospedado na Vercel */}
-        {process.env.VERCEL === '1' && <Analytics />}
       </body>
     </html>
   )

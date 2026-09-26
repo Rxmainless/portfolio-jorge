@@ -4,6 +4,7 @@ import { ImageResponse } from 'next/og'
 
 export const size = { width: 180, height: 180 }
 export const contentType = 'image/png'
+export const dynamic = 'force-static'
 
 /** Ícone Apple gerado a partir do mesmo SVG do favicon (engrenagem de latão). */
 export default function AppleIcon() {

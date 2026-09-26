@@ -6,6 +6,7 @@ import { houses } from '@/lib/realm-data'
 export const alt = 'Jorge Mesquita — O Reino dos Sistemas. Portfólio de ADS e Engenharia de Software.'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
+export const dynamic = 'force-static'
 
 /** Card de compartilhamento (LinkedIn, WhatsApp…): obsidiana, latão e as seis casas. */
 export default function OpengraphImage() {
