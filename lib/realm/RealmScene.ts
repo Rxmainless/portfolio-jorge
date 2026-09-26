@@ -273,7 +273,10 @@ export class RealmScene {
       const dist = Math.max(29 * k, top * 2.8) * (wide ? 1.15 : 1)
       return { position: target.clone().addScaledVector(dir, dist), target }
     })
-    const epilogue: Pose = { position: new THREE.Vector3(wide ? -30 : -64, wide ? 340 : 215, wide ? 260 : 210), target: new THREE.Vector3(10, 0, 4) }
+    // Retrato: mira mais ao sul para o mapa subir e deixar a metade de baixo para o texto do epílogo
+    const epilogue: Pose = wide
+      ? { position: new THREE.Vector3(-24, 430, 340), target: new THREE.Vector3(6, 0, 72) }
+      : { position: new THREE.Vector3(-64, 215, 210), target: new THREE.Vector3(10, 0, 4) }
     return [intro, cover, ...houseStops, epilogue]
   }
 
