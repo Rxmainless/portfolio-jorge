@@ -12,19 +12,6 @@ torre e edifícios. Rolar para cima desmonta tudo na ordem inversa.
 Versões: português em `/`, inglês em `/en`. O moodboard da identidade visual fica
 em `/moodboard`.
 
-## Rodar
-
-```bash
-pnpm install
-pnpm dev          # http://localhost:3000
-pnpm build        # site estático em out/
-pnpm test         # testes unitários (Vitest)
-pnpm test:e2e     # testes no navegador (Playwright), depois do build
-pnpm cv           # regenera o currículo em PDF (public/) a partir de lib/content.ts
-```
-
-Node 22 ou mais novo e pnpm 11.
-
 ## Seções
 
 | Seção | Casa e sede | Conteúdo |
@@ -71,21 +58,6 @@ tests/unit/               trilha e efeitos renderizados offline, conteúdo
 tests/e2e/                jornada completa, sem WebGL, regulador, idiomas, 404
 ```
 
-## Publicação (Cloudflare Pages)
-
-O build gera um site estático em `out/`. No painel do Cloudflare: Workers & Pages,
-Create, Pages, Connect to Git, e escolher este repositório.
-
-| Configuração | Valor |
-|---|---|
-| Framework preset | None |
-| Build command | `pnpm build` |
-| Build output directory | `out` |
-| Variável `SITE_URL` | o endereço final, por exemplo `https://portfolio-jorge.pages.dev` |
-
-A versão do Node vem de `.node-version`. Cabeçalhos de cache e segurança ficam em
-`public/_headers`. O GitHub Actions roda typecheck, testes e build a cada push.
-
 ## Créditos
 
 Homenagem inspirada em Game of Thrones (HBO, George R. R. Martin). Nomes de casas,
@@ -93,4 +65,3 @@ sedes e lemas curtos são referências ao tema. Sigilos ASCII, mapa, cidades,
 animações, trilha e código são originais. Nenhum logotipo, imagem, fonte ou música
 oficial da série é usado.
 
-Avaliação pelos critérios da atividade: [AVALIACAO.md](AVALIACAO.md).
