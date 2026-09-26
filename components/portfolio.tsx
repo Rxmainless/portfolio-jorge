@@ -336,14 +336,21 @@ function SectionBody({ id, copy }: { id: House['section']; copy: Copy }) {
         <div className="house-body">
           <p className="lead">{copy.cursos.lead}</p>
           <ol className="chain stagger-in" aria-label={copy.cursos.title}>
-            {Array.from({ length: 5 }, (_, i) => (
-              <li key={i} className="link-empty">
-                <span aria-hidden="true">◯</span>
-                {copy.cursos.empty}
+            {copy.cursos.items.map((c) => (
+              <li key={c.name} className="link-forged">
+                <span className="link-ring" aria-hidden="true">◉</span>
+                <div>
+                  <strong>{c.name}</strong>
+                  <small>{c.provider}</small>
+                </div>
+                <em>{copy.cursos.metalLabel} {c.metal}</em>
               </li>
             ))}
+            <li className="link-empty">
+              <span aria-hidden="true">◯</span>
+              {copy.cursos.empty}
+            </li>
           </ol>
-          <p className="pending">{copy.cursos.pending}</p>
         </div>
       )
     case 'habilidades':

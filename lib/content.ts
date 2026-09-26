@@ -167,8 +167,14 @@ export const copy = {
     cursos: {
       title: 'Cursos',
       lead: 'Cada curso concluído vira um elo da corrente de meistre.',
-      empty: 'Elo a forjar',
-      pending: 'Os cursos ainda serão adicionados — nada aqui é inventado.',
+      // Informados por Jorge. Detalhes (idioma, linguagens, nome exato do curso Cisco) a completar.
+      items: [
+        { name: 'Cibersegurança', provider: 'Cisco', metal: 'aço' },
+        { name: 'Idiomas', provider: 'Curso de idioma', metal: 'prata' },
+        { name: 'Linguagens de programação', provider: 'Cursos de linguagens', metal: 'ferro' },
+      ],
+      metalLabel: 'elo de',
+      empty: 'Próximo elo',
     },
     habilidades: {
       title: 'Habilidades',
@@ -224,8 +230,13 @@ export const copy = {
     cursos: {
       title: 'Courses',
       lead: "Every finished course becomes a link in the maester's chain.",
-      empty: 'Link to forge',
-      pending: 'Courses will be added soon — nothing here is made up.',
+      items: [
+        { name: 'Cybersecurity', provider: 'Cisco', metal: 'steel' },
+        { name: 'Languages', provider: 'Language course', metal: 'silver' },
+        { name: 'Programming languages', provider: 'Programming courses', metal: 'iron' },
+      ],
+      metalLabel: 'link of',
+      empty: 'Next link',
     },
     habilidades: {
       title: 'Skills',

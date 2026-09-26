@@ -75,6 +75,12 @@
 .chain { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .chain li { display: flex; align-items: center; gap: 12px; padding: 0.55rem 0.8rem; border: 1px dashed var(--line-strong); font: 11px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
 .chain li span { color: var(--brass); opacity: 0.6; }
+.chain li.link-forged { border-style: solid; border-color: var(--line-strong); background: rgba(217, 204, 174, 0.03); color: var(--parchment); text-transform: none; letter-spacing: 0; font: inherit; padding: 0.7rem 0.9rem; }
+.chain li.link-forged .link-ring { color: var(--c); opacity: 1; font: 14px var(--mono); }
+.chain li.link-forged div { display: grid; gap: 1px; flex: 1; }
+.chain li.link-forged strong { font: 600 1rem var(--display); letter-spacing: 0.05em; }
+.chain li.link-forged small { font: 10px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+.chain li.link-forged em { font: 9.5px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--brass); font-style: normal; }
 .skill-groups { display: grid; gap: 1.1rem; }
 .skill-group h3 { margin-bottom: 0.5rem; color: var(--c); }
 .skill-group ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
