@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "serve out",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "gsap": "^3.15.0",
@@ -17,14 +20,18 @@
     "three": "^0.186.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.186.0",
+    "node-web-audio-api": "^2.2.0",
     "postcss": "^8.5",
+    "serve": "^14.2.6",
     "tailwindcss": "^4.3.3",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "vitest": "^5.0.1"
   },
   "description": "Portfólio de Jorge Mesquita — O Reino dos Sistemas (Next.js, Three.js, GSAP, Web Audio)",
   "engines": {

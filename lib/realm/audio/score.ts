@@ -31,10 +31,10 @@ const Gm: Chord = { root: 43, triad: [55, 58, 62] }
 const A: Chord = { root: 33, triad: [57, 61, 64] }
 const F: Chord = { root: 41, triad: [60, 65, 69] }
 const Eb: Chord = { root: 39, triad: [58, 63, 67] }
-const CHORDS: Chord[] = [Dm, Dm, Bb, C, Dm, Dm, Gm, A, F, C, Dm, Bb, Gm, Dm, Eb, A]
+export const CHORDS: Chord[] = [Dm, Dm, Bb, C, Dm, Dm, Gm, A, F, C, Dm, Bb, Gm, Dm, Eb, A]
 
 /** Melodia do violino solo: [nota MIDI, duração em tempos] por compasso (0 = pausa). */
-const MELODY: [number, number][][] = [
+export const MELODY: [number, number][][] = [
   [[74, 1.5], [76, 0.5], [77, 1]],
   [[81, 2], [79, 0.5], [77, 0.5]],
   [[77, 1.5], [76, 0.5], [74, 1]],

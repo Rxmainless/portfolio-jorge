@@ -15,3 +15,7 @@ out/
 # Gerados pelo Next / TypeScript
 next-env.d.ts
 *.tsbuildinfo
+
+# Testes
+test-results/
+playwright-report/
