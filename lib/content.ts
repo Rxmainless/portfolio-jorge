@@ -176,7 +176,7 @@ export const copy = {
     nav: { capa: 'Capa', perfil: 'Perfil', formacao: 'Formação', cursos: 'Cursos', habilidades: 'Habilidades', projetos: 'Projetos', contato: 'Contato' },
     loading: 'Forjando o reino',
     cover: {
-      eyebrow: 'Portfólio · Análise e Desenvolvimento de Sistemas',
+      eyebrow: 'Portfólio · ADS · Engenharia de Software',
       title: 'Jorge Mesquita',
       subtitle: 'O Reino dos Sistemas',
       lead: 'Cada parte da minha trajetória é uma cidade. Role a página e veja a máquina erguê-las, uma a uma.',
@@ -186,16 +186,18 @@ export const copy = {
     stage: 'Construção',
     perfil: {
       title: 'Perfil',
-      lead: 'Sou Jorge Mesquita, estudante de Análise e Desenvolvimento de Sistemas e desenvolvedor interessado na interseção entre código, dados, design e automação.',
+      lead: 'Sou Jorge Mesquita, estudante de Análise e Desenvolvimento de Sistemas (Senac) e de Engenharia de Software (UNIFG), desenvolvedor interessado na interseção entre código, dados, design e automação.',
       body: 'Ainda estou no começo, mas nunca estive parado. Minha formação é o ponto de partida para construir coisas úteis, bonitas e bem pensadas.',
-      facts: [['Base', 'Recife · PE'], ['Foco', 'Backend · Python · SQL · APIs · Automação'], ['Idiomas', 'Inglês fluente'], ['Busca', 'Estágio ou primeira vaga júnior em Backend']],
+      facts: [['Base', 'Recife · PE'], ['Foco', 'Backend · Python · SQL · APIs · Automação'], ['Idiomas', 'Inglês avançado · Espanhol intermediário · Francês, italiano, chinês e russo (iniciante)'], ['Busca', 'Estágio ou primeira vaga júnior em Backend']],
     },
     formacao: {
       title: 'Formação',
-      degree: 'Análise e Desenvolvimento de Sistemas',
       level: 'Graduação · em curso',
-      pending: 'Instituição e período: a forjar',
-      note: 'Na Cidadela, cada meistre forja sua corrente elo a elo. A formação é o primeiro elo.',
+      degrees: [
+        { name: 'Análise e Desenvolvimento de Sistemas', institution: 'Faculdade Senac', detail: 'via Embarque Digital' },
+        { name: 'Engenharia de Software', institution: 'UNIFG', detail: '1º ano de 4' },
+      ],
+      note: 'Duas graduações ao mesmo tempo. Na Cidadela, cada meistre forja sua corrente elo a elo — a formação são os primeiros elos.',
     },
     cursos: {
       title: 'Cursos',
@@ -203,7 +205,7 @@ export const copy = {
       // Informados por Jorge. Detalhes (idioma, linguagens, nome exato do curso Cisco) a completar.
       items: [
         { name: 'Cibersegurança', provider: 'Cisco', metal: 'aço' },
-        { name: 'Idiomas', provider: 'Curso de idioma', metal: 'prata' },
+        { name: 'Idiomas', provider: 'Duolingo · inglês, espanhol, francês, italiano, chinês, russo', metal: 'prata' },
         { name: 'Linguagens de programação', provider: 'Cursos de linguagens', metal: 'ferro' },
       ],
       metalLabel: 'elo de',
@@ -226,7 +228,7 @@ export const copy = {
       lead: 'Envie um corvo. Respondo por aqui:',
       github: 'GitHub',
       linkedin: 'LinkedIn',
-      email: 'E-mail profissional: a definir',
+      email: 'E-mail',
     },
     epilogue: { title: 'O reino está de pé', body: 'Seis casas, uma máquina. As habilidades não são uma lista: elas formam um sistema.', top: 'Voltar à capa', footer: 'Jorge Mesquita © 2026 · Homenagem inspirada em Game of Thrones — arte e código originais.' },
     moodboard: 'Moodboard',
@@ -242,7 +244,7 @@ export const copy = {
     nav: { capa: 'Cover', perfil: 'Profile', formacao: 'Education', cursos: 'Courses', habilidades: 'Skills', projetos: 'Projects', contato: 'Contact' },
     loading: 'Forging the realm',
     cover: {
-      eyebrow: 'Portfolio · Analysis and Systems Development',
+      eyebrow: 'Portfolio · Systems Development · Software Engineering',
       title: 'Jorge Mesquita',
       subtitle: 'The Realm of Systems',
       lead: 'Every part of my path is a city. Scroll and watch the machine raise them, one by one.',
@@ -252,23 +254,25 @@ export const copy = {
     stage: 'Construction',
     perfil: {
       title: 'Profile',
-      lead: 'I am Jorge Mesquita, an Analysis and Systems Development student interested in the intersection of code, data, design and automation.',
+      lead: 'I am Jorge Mesquita, studying Analysis and Systems Development (Senac) and Software Engineering (UNIFG) — a developer interested in the intersection of code, data, design and automation.',
       body: 'I am still at the beginning, but never standing still. My degree is the starting point for building things that are useful, beautiful and well-considered.',
-      facts: [['Based in', 'Recife · Brazil'], ['Focus', 'Backend · Python · SQL · APIs · Automation'], ['Languages', 'Fluent English'], ['Seeking', 'Internship or first junior Backend role']],
+      facts: [['Based in', 'Recife · Brazil'], ['Focus', 'Backend · Python · SQL · APIs · Automation'], ['Languages', 'Advanced English · Intermediate Spanish · Beginner French, Italian, Chinese and Russian'], ['Seeking', 'Internship or first junior Backend role']],
     },
     formacao: {
       title: 'Education',
-      degree: 'Analysis and Systems Development',
       level: 'Degree · in progress',
-      pending: 'Institution and dates: to be forged',
-      note: "At the Citadel, every maester forges a chain link by link. The degree is the first link.",
+      degrees: [
+        { name: 'Analysis and Systems Development', institution: 'Faculdade Senac', detail: 'through Embarque Digital' },
+        { name: 'Software Engineering', institution: 'UNIFG', detail: 'year 1 of 4' },
+      ],
+      note: 'Two degrees at once. At the Citadel, every maester forges a chain link by link — these are the first links.',
     },
     cursos: {
       title: 'Courses',
       lead: "Every finished course becomes a link in the maester's chain.",
       items: [
         { name: 'Cybersecurity', provider: 'Cisco', metal: 'steel' },
-        { name: 'Languages', provider: 'Language course', metal: 'silver' },
+        { name: 'Languages', provider: 'Duolingo · English, Spanish, French, Italian, Chinese, Russian', metal: 'silver' },
         { name: 'Programming languages', provider: 'Programming courses', metal: 'iron' },
       ],
       metalLabel: 'link of',
@@ -282,7 +286,7 @@ export const copy = {
       legend: '◆ declared focus · names = projects where I used it · GitHub profile = listed on my profile, no public repo yet',
     },
     projetos: { title: 'Projects', lead: 'What has actually been forged.', stack: 'Stack' },
-    contato: { title: 'Contact', lead: 'Send a raven. Reach me here:', github: 'GitHub', linkedin: 'LinkedIn', email: 'Professional e-mail: to be defined' },
+    contato: { title: 'Contact', lead: 'Send a raven. Reach me here:', github: 'GitHub', linkedin: 'LinkedIn', email: 'E-mail' },
     epilogue: { title: 'The realm stands', body: 'Six houses, one machine. Skills are not a list: they form a system.', top: 'Back to cover', footer: 'Jorge Mesquita © 2026 · Tribute inspired by Game of Thrones — original art and code.' },
     moodboard: 'Moodboard',
     language: 'Language',
@@ -298,3 +302,4 @@ export type Copy = (typeof copy)['pt-BR']
 export const getCopy = (l: Locale): Copy => copy[l] as Copy
 export const GITHUB = 'https://github.com/Rxmainless'
 export const LINKEDIN = 'https://www.linkedin.com/in/mesquitaforall'
+export const EMAIL = 'jjorgefilho@outlook.com'

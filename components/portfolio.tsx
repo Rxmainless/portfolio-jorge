@@ -6,7 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 import { SplitText } from 'gsap/SplitText'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
-import { GITHUB, LINKEDIN, getCopy, type Copy, type Locale } from '@/lib/content'
+import { EMAIL, GITHUB, LINKEDIN, getCopy, type Copy, type Locale } from '@/lib/content'
 import { houses, type House } from '@/lib/realm-data'
 import type { RealmScene } from '@/lib/realm/RealmScene'
 import { AsciiSigil } from './ascii-sigil'
@@ -323,10 +323,16 @@ function SectionBody({ id, copy }: { id: House['section']; copy: Copy }) {
     case 'formacao':
       return (
         <div className="house-body">
-          <div className="degree">
-            <span className="eyebrow">{copy.formacao.level}</span>
-            <h3>{copy.formacao.degree}</h3>
-            <p className="pending">{copy.formacao.pending}</p>
+          <div className="degrees stagger-in">
+            {copy.formacao.degrees.map((d) => (
+              <div className="degree" key={d.name}>
+                <span className="eyebrow">{copy.formacao.level}</span>
+                <h3>{d.name}</h3>
+                <p className="degree-inst">
+                  {d.institution} <span>· {d.detail}</span>
+                </p>
+              </div>
+            ))}
           </div>
           <p className="note">{copy.formacao.note}</p>
         </div>
@@ -424,7 +430,12 @@ function SectionBody({ id, copy }: { id: House['section']; copy: Copy }) {
               in/mesquitaforall <ArrowUpRight aria-hidden="true" />
             </span>
           </a>
-          <p className="pending">{copy.contato.email}</p>
+          <a className="raven-link" href={`mailto:${EMAIL}`}>
+            <span className="eyebrow">{copy.contato.email}</span>
+            <span className="raven-url">
+              {EMAIL} <ArrowUpRight aria-hidden="true" />
+            </span>
+          </a>
         </div>
       )
   }

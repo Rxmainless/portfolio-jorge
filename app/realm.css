@@ -72,6 +72,9 @@
 .facts dd { margin: 0; }
 .degree { border: 1px solid var(--line); padding: 1.1rem 1.2rem; background: rgba(217, 204, 174, 0.03); display: grid; gap: 0.35rem; }
 .degree h3 { font: 600 1.25rem var(--display); letter-spacing: 0.06em; }
+.degrees { display: grid; gap: 0.7rem; }
+.degree-inst { font-size: 1.05rem; color: var(--parchment); }
+.degree-inst span { color: var(--dim); font-style: italic; }
 .chain { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .chain li { display: flex; align-items: center; gap: 12px; padding: 0.55rem 0.8rem; border: 1px dashed var(--line-strong); font: 11px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
 .chain li span { color: var(--brass); opacity: 0.6; }

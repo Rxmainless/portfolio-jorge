@@ -16,8 +16,8 @@ pnpm build
 |---|---|---|
 | Capa | o continente inteiro | abertura: voo sobre o mapa, título forjado |
 | Perfil | Stark · Winterfell | quem sou |
-| Formação | Hightower · Vilavelha | graduação em ADS |
-| Cursos | Tyrell · Jardim de Cima | corrente de meistre: Cibersegurança (Cisco), idioma, linguagens |
+| Formação | Hightower · Vilavelha | ADS (Senac, via Embarque Digital) e Engenharia de Software (UNIFG) |
+| Cursos | Tyrell · Jardim de Cima | corrente de meistre: Cibersegurança (Cisco), idiomas (Duolingo), linguagens |
 | Habilidades | Lannister · Rochedo Casterly | tecnologias + onde foram usadas |
 | Projetos | Targaryen · Pedra do Dragão | Dash Digital, Lumen, ONDA, RadarPME, Skill Map 3D |
 | Contato | Patrulha da Noite · Castelo Negro | GitHub / e-mail |
@@ -45,8 +45,8 @@ lib/
 
 ## Completar o conteúdo
 
-Edite `lib/content.ts`: detalhes dos cursos, instituição/período da graduação
-e e-mail profissional ainda estão incompletos. Nada foi inventado.
+Edite `lib/content.ts`. Ainda faltam o nome exato do curso de cibersegurança
+da Cisco e quais cursos de linguagens foram feitos. Nada foi inventado.
 
 ## Créditos e direitos
 
