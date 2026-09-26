@@ -12,12 +12,12 @@ Rubrica derivada do enunciado (pesos somam 10). Notas baseadas em testes reais
 | 4 | Animação das torres sendo criadas no portfólio | 2,0 | 2,0 | Cada tela constrói uma cidade mecanicamente (engrenagens → freios → cabos → escotilha → plataforma → fundação → torre telescópica → edifícios → pontes), sincronizada ao scroll e reversível. |
 | 5 | Scroll com GSAP para interatividade | 1,5 | 1,5 | ScrollTrigger (scrub) controla câmera e construção; SplitText nos títulos; ScrollToPlugin na navegação; painéis revelados por scroll. |
 | 6 | Qualidade técnica (build, desempenho, responsivo, acessibilidade) | 1,0 | 0,85 | `next build` passa com checagem de tipos ativada; 1,8–4 ms de CPU/frame; layout testado em 1440×900 e 375×812; `prefers-reduced-motion`, rótulos ARIA, foco visível. **Desconto:** fluidez em GPU móvel real não medida. |
-| 7 | Conteúdo real (sem inventar) | 1,0 | 0,7 | Perfil, formação, cursos, projetos e habilidades vêm de fontes verificáveis (projeto original, READMEs e informação do autor). **Desconto:** faltam detalhes dos cursos (qual idioma, quais linguagens, nome do curso Cisco), e-mail profissional e dados da instituição. |
-| | **Total** | **10** | **9,25** | |
+| 7 | Conteúdo real (sem inventar) | 1,0 | 0,8 | Perfil, formação, cursos, projetos e habilidades vêm de fontes verificáveis (projeto original, README do perfil e repositórios do GitHub, READMEs locais e informação do autor); habilidades separam o que tem repositório do que só está listado no perfil. **Desconto:** faltam detalhes dos cursos (qual idioma, quais linguagens, nome do curso Cisco), e-mail profissional e dados da instituição. |
+| | **Total** | **10** | **9,35** | |
 
 ## Veredito
 
-**Aprovado — 9,25 > 8.**
+**Aprovado — 9,35 > 8.**
 
 A nota sobe para ~9,6 quando forem preenchidos: detalhes dos cursos,
 instituição/período da graduação e e-mail profissional (`lib/content.ts`).

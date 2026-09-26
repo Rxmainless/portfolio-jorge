@@ -87,6 +87,10 @@
 .skill-group li { display: grid; gap: 1px; padding: 0.35rem 0; border-bottom: 1px solid var(--line); }
 .skill-group li span { font-size: 1.02rem; }
 .skill-group li small { font: 9.5px var(--mono); letter-spacing: 0.04em; color: var(--faint); }
+.skill-group li.is-focus span { color: var(--parchment); }
+.skill-group li.is-focus b { color: var(--c); font-weight: 400; font-size: 0.8em; }
+.skill-legend { font-size: 9.5px; line-height: 1.6; text-transform: none; letter-spacing: 0.04em; }
+.raven-link + .raven-link { margin-top: 0.4rem; }
 .projects { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; }
 .project { border: 1px solid var(--line); padding: 1rem 1.1rem; display: grid; gap: 0.45rem; background: rgba(217, 204, 174, 0.025); }
 .project-top { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }

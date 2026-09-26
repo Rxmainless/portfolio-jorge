@@ -1,6 +1,7 @@
 /**
  * Conteúdo do portfólio. REGRA: só fatos verificáveis.
- * Fontes: textos do projeto original (perfil, formação) e os READMEs /
+ * Fontes: textos do projeto original (perfil, formação), README do perfil e
+ * repositórios públicos de github.com/Rxmainless, e os READMEs /
  * package.json dos projetos em D:\Projects (stacks, descrições, links).
  * O que ainda não foi informado aparece como "a forjar" — nunca inventado.
  */
@@ -16,59 +17,71 @@ export interface Project {
   status: string
 }
 
-export interface SkillGroup {
-  title: string
-  items: { name: string; evidence: string[] }[]
+export interface SkillItem {
+  name: string
+  /** Projetos onde a tecnologia aparece de fato (README / package.json / repositório). */
+  evidence: string[]
+  /** Listada no README do perfil do GitHub. */
+  declared?: boolean
+  /** Foco declarado no GitHub: "Especializando-me em Backend com foco em Python, SQL, APIs e Automação". */
+  focus?: boolean
 }
 
-// Evidência = projetos onde a tecnologia aparece de fato (README/package.json)
+export interface SkillGroup {
+  title: string
+  items: SkillItem[]
+}
+
+// Fontes: README do perfil github.com/Rxmainless (tecnologias e foco) + repositórios
 const skillGroups = (l: Locale): SkillGroup[] => [
   {
-    title: l === 'pt-BR' ? 'Linguagens' : 'Languages',
+    title: l === 'pt-BR' ? 'Backend · foco' : 'Backend · focus',
     items: [
-      { name: 'TypeScript', evidence: ['Lumen', 'ONDA Feedback', 'Dash Digital', 'Skill Map 3D'] },
-      { name: 'Python', evidence: ['Dash Digital', 'RadarPME'] },
-      { name: 'SQL', evidence: ['ONDA Feedback', 'RadarPME'] },
+      { name: 'Python', evidence: ['Dash Digital', 'RadarPME'], declared: true, focus: true },
+      { name: 'SQL', evidence: ['ONDA Feedback', 'RadarPME'], declared: true, focus: true },
+      { name: 'APIs REST', evidence: ['Desafio Itaú'], focus: true },
+      { name: 'Java 17', evidence: ['Desafio Itaú'], declared: true },
+      { name: 'Spring Boot 3', evidence: ['Desafio Itaú'] },
+      { name: 'Flask', evidence: [], declared: true },
+      { name: 'Django', evidence: [], declared: true },
+      { name: 'Swagger / OpenAPI', evidence: ['Desafio Itaú'] },
+      { name: 'JUnit 5 · Maven', evidence: ['Desafio Itaú'] },
+    ],
+  },
+  {
+    title: l === 'pt-BR' ? 'Dados e automação' : 'Data & automation',
+    items: [
+      { name: l === 'pt-BR' ? 'Automação de processos' : 'Process automation', evidence: ['RadarPME', 'Dash Digital'], focus: true },
+      { name: 'Pandas', evidence: ['Dash Digital'], declared: true },
+      { name: 'PostgreSQL', evidence: [], declared: true },
+      { name: 'DuckDB', evidence: ['RadarPME'] },
+      { name: 'Streamlit', evidence: ['RadarPME'] },
+      { name: 'Drizzle ORM · Zod', evidence: ['ONDA Feedback'] },
     ],
   },
   {
     title: 'Frontend',
     items: [
+      { name: 'TypeScript', evidence: ['Lumen', 'ONDA Feedback', 'Dash Digital', 'Spotify UX', 'Skill Map 3D'] },
       { name: 'React 19', evidence: ['Lumen', 'Dash Digital', 'Skill Map 3D'] },
       { name: 'Next.js', evidence: ['ONDA Feedback'] },
-      { name: 'Vite', evidence: ['Lumen', 'Dash Digital', 'Skill Map 3D'] },
+      { name: 'Vite', evidence: ['Lumen', 'Dash Digital', 'Spotify UX', 'Skill Map 3D'] },
       { name: 'Tailwind CSS', evidence: ['Lumen'] },
-      { name: 'Zustand', evidence: ['Lumen'] },
-      { name: 'Framer Motion', evidence: ['Lumen'] },
+      { name: 'Zustand · Framer Motion', evidence: ['Lumen'] },
       { name: 'Recharts', evidence: ['Dash Digital'] },
+      { name: 'Three.js · GSAP', evidence: ['Skill Map 3D'] },
     ],
   },
   {
-    title: l === 'pt-BR' ? '3D e animação' : '3D & motion',
+    title: l === 'pt-BR' ? 'Infra, qualidade e entrega' : 'Infra, quality & delivery',
     items: [
-      { name: 'Three.js', evidence: ['Skill Map 3D'] },
-      { name: 'GSAP', evidence: ['Skill Map 3D'] },
-      { name: 'Web Audio API', evidence: ['Lumen'] },
-    ],
-  },
-  {
-    title: l === 'pt-BR' ? 'Dados' : 'Data',
-    items: [
-      { name: 'Pandas', evidence: ['Dash Digital'] },
-      { name: 'DuckDB', evidence: ['RadarPME'] },
-      { name: 'Streamlit', evidence: ['RadarPME'] },
-      { name: 'Drizzle ORM', evidence: ['ONDA Feedback'] },
-      { name: 'Zod', evidence: ['ONDA Feedback'] },
-    ],
-  },
-  {
-    title: l === 'pt-BR' ? 'Qualidade e entrega' : 'Quality & delivery',
-    items: [
-      { name: 'Vitest', evidence: ['Lumen'] },
-      { name: 'pytest', evidence: ['Dash Digital'] },
+      { name: 'Git / GitHub', evidence: ['Dash Digital', 'Lumen', 'Skill Map 3D'], declared: true },
       { name: 'GitHub Actions', evidence: ['Lumen', 'Dash Digital'] },
+      { name: 'Docker', evidence: [], declared: true },
+      { name: 'AWS', evidence: [], declared: true },
+      { name: 'Linux', evidence: [], declared: true },
       { name: 'Cloudflare Pages · D1 · KV', evidence: ['Dash Digital', 'ONDA Feedback'] },
-      { name: 'Git / GitHub', evidence: ['Dash Digital', 'Lumen', 'Skill Map 3D'] },
+      { name: 'Vitest · pytest', evidence: ['Lumen', 'Dash Digital'] },
     ],
   },
 ]
@@ -76,6 +89,17 @@ const skillGroups = (l: Locale): SkillGroup[] => [
 const projects = (l: Locale): Project[] => {
   const pt = l === 'pt-BR'
   return [
+    {
+      id: 'desafio-itau',
+      name: 'Desafio Itaú — API de Transações',
+      kind: pt ? 'Backend · API REST' : 'Backend · REST API',
+      summary: pt
+        ? 'API REST em Java/Spring Boot para o desafio técnico do Itaú Unibanco: registra transações e calcula em tempo real as estatísticas dos últimos 60 segundos, com validação, respostas HTTP corretas, Swagger e healthcheck.'
+        : "REST API in Java/Spring Boot for Itaú Unibanco's technical challenge: records transactions and computes real-time statistics for the last 60 seconds, with validation, correct HTTP responses, Swagger and health checks.",
+      stack: ['Java 17', 'Spring Boot 3', 'Maven', 'Spring Validation', 'Swagger / OpenAPI', 'Actuator', 'JUnit 5'],
+      links: [{ label: 'GitHub', url: 'https://github.com/Rxmainless/desafio-itau-backend' }],
+      status: pt ? 'Desafio técnico' : 'Technical challenge',
+    },
     {
       id: 'dash-digital',
       name: 'Dash Digital',
@@ -124,6 +148,15 @@ const projects = (l: Locale): Project[] => {
       status: '',
     },
     {
+      id: 'spotify-ux',
+      name: 'Spotify UX',
+      kind: pt ? 'UX/UI · Análise' : 'UX/UI · Analysis',
+      summary: pt ? 'Análise interativa de UX/UI do Spotify.' : 'Interactive UX/UI analysis of Spotify.',
+      stack: ['TypeScript', 'Vite'],
+      links: [{ label: 'GitHub', url: 'https://github.com/Rxmainless/spotify-ux-analise' }],
+      status: '',
+    },
+    {
       id: 'skill-map',
       name: 'Skill Map 3D',
       kind: pt ? '3D · Animação mecânica' : '3D · Mechanical animation',
@@ -155,7 +188,7 @@ export const copy = {
       title: 'Perfil',
       lead: 'Sou Jorge Mesquita, estudante de Análise e Desenvolvimento de Sistemas e desenvolvedor interessado na interseção entre código, dados, design e automação.',
       body: 'Ainda estou no começo, mas nunca estive parado. Minha formação é o ponto de partida para construir coisas úteis, bonitas e bem pensadas.',
-      facts: [['Base', 'Recife · PE'], ['Foco', 'Code · Data · Design · Automation · Systems']],
+      facts: [['Base', 'Recife · PE'], ['Foco', 'Backend · Python · SQL · APIs · Automação'], ['Idiomas', 'Inglês fluente'], ['Busca', 'Estágio ou primeira vaga júnior em Backend']],
     },
     formacao: {
       title: 'Formação',
@@ -180,6 +213,8 @@ export const copy = {
       title: 'Habilidades',
       lead: 'Plataformas, linguagens e ferramentas que usei em projetos reais. Cada uma aponta onde foi usada.',
       used: 'usado em',
+      declared: 'perfil GitHub',
+      legend: '◆ foco declarado · nomes = projetos onde usei · perfil GitHub = listada no perfil, ainda sem repositório público',
     },
     projetos: {
       title: 'Projetos',
@@ -190,6 +225,7 @@ export const copy = {
       title: 'Contato',
       lead: 'Envie um corvo. Respondo por aqui:',
       github: 'GitHub',
+      linkedin: 'LinkedIn',
       email: 'E-mail profissional: a definir',
     },
     epilogue: { title: 'O reino está de pé', body: 'Seis casas, uma máquina. As habilidades não são uma lista: elas formam um sistema.', top: 'Voltar à capa', footer: 'Jorge Mesquita © 2026 · Homenagem inspirada em Game of Thrones — arte e código originais.' },
@@ -218,7 +254,7 @@ export const copy = {
       title: 'Profile',
       lead: 'I am Jorge Mesquita, an Analysis and Systems Development student interested in the intersection of code, data, design and automation.',
       body: 'I am still at the beginning, but never standing still. My degree is the starting point for building things that are useful, beautiful and well-considered.',
-      facts: [['Based in', 'Recife · Brazil'], ['Focus', 'Code · Data · Design · Automation · Systems']],
+      facts: [['Based in', 'Recife · Brazil'], ['Focus', 'Backend · Python · SQL · APIs · Automation'], ['Languages', 'Fluent English'], ['Seeking', 'Internship or first junior Backend role']],
     },
     formacao: {
       title: 'Education',
@@ -242,9 +278,11 @@ export const copy = {
       title: 'Skills',
       lead: 'Platforms, languages and tools I have used in real projects. Each one points to where it was used.',
       used: 'used in',
+      declared: 'GitHub profile',
+      legend: '◆ declared focus · names = projects where I used it · GitHub profile = listed on my profile, no public repo yet',
     },
     projetos: { title: 'Projects', lead: 'What has actually been forged.', stack: 'Stack' },
-    contato: { title: 'Contact', lead: 'Send a raven. Reach me here:', github: 'GitHub', email: 'Professional e-mail: to be defined' },
+    contato: { title: 'Contact', lead: 'Send a raven. Reach me here:', github: 'GitHub', linkedin: 'LinkedIn', email: 'Professional e-mail: to be defined' },
     epilogue: { title: 'The realm stands', body: 'Six houses, one machine. Skills are not a list: they form a system.', top: 'Back to cover', footer: 'Jorge Mesquita © 2026 · Tribute inspired by Game of Thrones — original art and code.' },
     moodboard: 'Moodboard',
     language: 'Language',
@@ -259,3 +297,4 @@ export const copy = {
 export type Copy = (typeof copy)['pt-BR']
 export const getCopy = (l: Locale): Copy => copy[l] as Copy
 export const GITHUB = 'https://github.com/Rxmainless'
+export const LINKEDIN = 'https://www.linkedin.com/in/mesquitaforall'

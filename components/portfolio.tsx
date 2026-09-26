@@ -6,7 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 import { SplitText } from 'gsap/SplitText'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
-import { GITHUB, getCopy, type Copy, type Locale } from '@/lib/content'
+import { GITHUB, LINKEDIN, getCopy, type Copy, type Locale } from '@/lib/content'
 import { houses, type House } from '@/lib/realm-data'
 import type { RealmScene } from '@/lib/realm/RealmScene'
 import { AsciiSigil } from './ascii-sigil'
@@ -363,15 +363,19 @@ function SectionBody({ id, copy }: { id: House['section']; copy: Copy }) {
                 <h3 className="eyebrow">{g.title}</h3>
                 <ul className="stagger-in">
                   {g.items.map((s) => (
-                    <li key={s.name} title={`${copy.habilidades.used}: ${s.evidence.join(', ')}`}>
-                      <span>{s.name}</span>
-                      <small>{s.evidence.join(' · ')}</small>
+                    <li key={s.name} className={s.focus ? 'is-focus' : undefined} title={s.evidence.length ? `${copy.habilidades.used}: ${s.evidence.join(', ')}` : copy.habilidades.declared}>
+                      <span>
+                        {s.focus && <b aria-hidden="true">◆ </b>}
+                        {s.name}
+                      </span>
+                      <small>{s.evidence.length ? s.evidence.join(' · ') : copy.habilidades.declared}</small>
                     </li>
                   ))}
                 </ul>
               </div>
             ))}
           </div>
+          <p className="pending skill-legend">{copy.habilidades.legend}</p>
         </div>
       )
     case 'projetos':
@@ -412,6 +416,12 @@ function SectionBody({ id, copy }: { id: House['section']; copy: Copy }) {
             <span className="eyebrow">{copy.contato.github}</span>
             <span className="raven-url">
               github.com/Rxmainless <ArrowUpRight aria-hidden="true" />
+            </span>
+          </a>
+          <a className="raven-link" href={LINKEDIN} target="_blank" rel="noreferrer">
+            <span className="eyebrow">{copy.contato.linkedin}</span>
+            <span className="raven-url">
+              in/mesquitaforall <ArrowUpRight aria-hidden="true" />
             </span>
           </a>
           <p className="pending">{copy.contato.email}</p>
