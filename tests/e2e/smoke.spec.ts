@@ -59,3 +59,18 @@ test('inglês e moodboard', async ({ page }) => {
   await expect(page.locator('h1')).toBeVisible()
   await expect(page.getByRole('button', { name: /Tema do Reino/i })).toBeVisible()
 })
+
+test('modo leitura desliga o 3D, é lembrado e volta ao mapa', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.locator('canvas').first()).toBeAttached({ timeout: 30_000 })
+  await page.getByRole('button', { name: /modo leitura/i }).click()
+  await expect(page.locator('main')).toHaveClass(/is-flat/)
+  await expect(page.locator('.realm-canvas')).toHaveCount(0)
+  await expect(page.locator('#projetos .house-panel')).toBeVisible()
+  await page.reload()
+  await expect(page.locator('main')).toHaveClass(/is-flat/)
+  await page.getByRole('button', { name: /voltar ao mapa 3d/i }).click()
+  await expect(page.locator('main')).not.toHaveClass(/is-flat/)
+  await expect(page.locator('.realm-loading')).toHaveClass(/is-done/, { timeout: 30_000 })
+  await expect(page.locator('.realm-canvas canvas')).toBeAttached()
+})

@@ -25,8 +25,10 @@ export function Portfolio() {
   const [locale, setLocale] = useState<Locale>('pt-BR')
   const [menuOpen, setMenuOpen] = useState(false)
   const [realm, setRealm] = useState<RealmScene | null>(null)
-  // Sem WebGL: página plana, só o conteúdo, com os sigilos já revelados
-  const [flat, setFlat] = useState(false)
+  // Página plana (só o conteúdo, sigilos revelados): sem WebGL ou por escolha (modo leitura)
+  const [noWebGL, setNoWebGL] = useState(false)
+  const [reading, setReading] = useState(false)
+  const flat = noWebGL || reading
   const [builds, setBuilds] = useState<number[]>(() => houses.map(() => 0))
   const copy = getCopy(locale)
   const rootRef = useRef<HTMLElement>(null)
@@ -104,10 +106,28 @@ export function Portfolio() {
     if (process.env.NODE_ENV !== 'production') Object.assign(window, { __realm: scene, __gsap: gsap, __ST: ScrollTrigger }) // validação
   }, [])
 
-  const onNoWebGL = useCallback(() => {
-    setFlat(true)
-    setBuilds(houses.map(() => 1))
+  const onNoWebGL = useCallback(() => setNoWebGL(true), [])
+  useEffect(() => {
+    if (window.localStorage.getItem('jorge-leitura') === 'on') setReading(true)
   }, [])
+  useEffect(() => {
+    if (!flat) return
+    setRealm(null)
+    setBuilds(houses.map(() => 1))
+  }, [flat])
+  const toggleReading = () => {
+    const next = !reading
+    setReading(next)
+    if (!next) {
+      // De volta ao 3D: o voo de abertura toca de novo a partir da capa
+      introPlayed.current = false
+      setBuilds(houses.map(() => 0))
+    }
+    try {
+      window.localStorage.setItem('jorge-leitura', next ? 'on' : 'off')
+    } catch {}
+    window.scrollTo(0, 0)
+  }
 
   // Título forjado logo na chegada, sem esperar o 3D (o mapa aparece por trás quando fica pronto)
   const titleForged = useRef(false)
@@ -250,7 +270,7 @@ export function Portfolio() {
   return (
     <main className={flat ? "realm grain is-flat" : "realm grain"} ref={rootRef}>
       <div className="realm-stage">
-        <RealmCanvas className="realm-canvas" options={{ mode: 'journey', panelSide: SIDES }} onReady={onReady} onError={onNoWebGL} label={copy.canvasAlt} />
+        {!flat && <RealmCanvas className="realm-canvas" options={{ mode: 'journey', panelSide: SIDES }} onReady={onReady} onError={onNoWebGL} label={copy.canvasAlt} />}
         <div className="realm-vignette" />
         <div className="map-labels" aria-hidden="true">
           {houses.map((h, i) => (
@@ -322,11 +342,18 @@ export function Portfolio() {
             </a>
           ))}
         </div>
-        {!soundOn && (
-          <button type="button" className="sound-invite cover-reveal" onClick={toggleSound}>
-            {copy.sound.invite}
-          </button>
-        )}
+        <div className="cover-actions cover-reveal">
+          {!soundOn && !flat && (
+            <button type="button" className="sound-invite" onClick={toggleSound}>
+              {copy.sound.invite}
+            </button>
+          )}
+          {!noWebGL && (
+            <button type="button" className="reading-toggle" onClick={toggleReading} aria-pressed={reading}>
+              {reading ? copy.reading.off : copy.reading.on}
+            </button>
+          )}
+        </div>
         <div className="cover-meta cover-reveal">
           <span>{copy.cover.location}</span>
           <span className="cue">{copy.cover.cue} ↓</span>

@@ -32,7 +32,10 @@
 .sound-toggle span { color: var(--faint); letter-spacing: 0; }
 .sound-toggle.is-on { color: var(--parchment); }
 .sound-toggle.is-on span { color: var(--ember); }
-.sound-invite { margin-top: 0.4rem; background: rgba(11, 10, 9, 0.55); border: 1px solid var(--line-strong); color: var(--brass); font: 10.5px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; padding: 0.55rem 0.9rem; cursor: pointer; transition: border-color 0.3s, color 0.3s; }
+.cover-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.6rem 1.2rem; margin-top: 0.4rem; }
+.reading-toggle { background: none; border: 0; border-bottom: 1px solid var(--line-strong); color: var(--dim); font: 10.5px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; padding: 0.3rem 0; cursor: pointer; transition: color 0.3s, border-color 0.3s; }
+.reading-toggle:hover, .reading-toggle:focus-visible { color: var(--ember); border-color: var(--ember); }
+.sound-invite { background: rgba(11, 10, 9, 0.55); border: 1px solid var(--line-strong); color: var(--brass); font: 10.5px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; padding: 0.55rem 0.9rem; cursor: pointer; transition: border-color 0.3s, color 0.3s; }
 .sound-invite:hover, .sound-invite:focus-visible { border-color: var(--ember); color: var(--ember); }
 .menu-toggle { display: none; padding: 0.4rem; }
 .menu-toggle svg { width: 18px; }
@@ -175,6 +178,6 @@
 /* Celular: nenhum texto abaixo de 12 px */
 @media (max-width: 520px) {
   .eyebrow, .cover-meta, .sound-invite, .footer-note, .map-label small, .project-links a, .raven-link, .text-link, .sound-toggle, .language-toggle, .built-count, .machine-hud, .mixer-title, .mixer-name, .mixer-meter,
-  .nav-links, .panel-rule, .pending, .facts dt, .chain li.link-forged small, .chain li.link-forged em, .skill-group li small, .skill-legend, .status, .project-stack { font-size: 12px; }
+  .reading-toggle, .nav-links, .panel-rule, .pending, .facts dt, .chain li.link-forged small, .chain li.link-forged em, .skill-group li small, .skill-legend, .status, .project-stack { font-size: 12px; }
   .sound-toggle, .language-toggle { letter-spacing: 0.04em; }
 }
