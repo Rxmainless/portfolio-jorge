@@ -309,9 +309,50 @@ export function scheduleBar(ctx: Ctx, dest: Record<Layer, AudioNode>, bar: numbe
   }
 }
 
+// Naipes pré-renderizados: cada camada vira um loop de 16 compassos, gerado uma
+// vez fora do tempo real. Tocar sete loops custa quase nada, então a trilha não
+// disputa processador com o 3D (em celulares, a síntese ao vivo engasgava).
+
+/** Taxa dos naipes: agudos até 12 kHz bastam para cordas e metais sintetizados. */
+export const STEM_RATE = 24000
+
+type OfflineFactory = (channels: number, length: number, sampleRate: number) => OfflineAudioContext
+
 /**
- * Motor da trilha em tempo real: agenda compassos com antecedência e ajusta o
- * volume de cada camada conforme o progresso das cidades.
+ * Renderiza uma camada pela forma inteira. As caudas que passam do último
+ * compasso são somadas ao início (o som é linear), então o loop não tem emenda.
+ */
+export async function renderStem(layer: Layer, make: OfflineFactory = (c, l, r) => new OfflineAudioContext(c, l, r), rate = STEM_RATE): Promise<Float32Array> {
+  const loop = Math.round(FORM * BAR * rate)
+  const tail = Math.round(3 * rate)
+  const ctx = make(1, loop + tail, rate)
+  const out = Object.fromEntries(LAYERS.map((l) => [l, ctx.destination])) as unknown as Record<Layer, AudioNode>
+  const active = Object.fromEntries(LAYERS.map((l) => [l, l === layer])) as Record<Layer, boolean>
+  for (let b = 0; b < FORM; b++) scheduleBar(ctx as unknown as BaseAudioContext, out, b, b * BAR, active)
+  const full = (await ctx.startRendering()).getChannelData(0)
+  const data = new Float32Array(loop)
+  data.set(full.subarray(0, loop))
+  for (let i = 0; i < tail; i++) data[i] += full[loop + i]
+  return data
+}
+
+const stems = new Map<Layer, Promise<Float32Array>>()
+let queue: Promise<unknown> = Promise.resolve()
+
+/** Naipe em cache; as renderizações entram numa fila, na ordem em que as casas aparecem. */
+export function getStem(layer: Layer): Promise<Float32Array> {
+  let p = stems.get(layer)
+  if (!p) {
+    p = queue.then(() => renderStem(layer))
+    queue = p.catch(() => undefined)
+    stems.set(layer, p)
+  }
+  return p
+}
+
+/**
+ * Trilha adaptativa: sete loops alinhados no mesmo relógio, com o volume de
+ * cada camada seguindo o progresso da cidade da sua casa.
  */
 export class AdaptiveScore {
   readonly bus: GainNode
@@ -319,9 +360,12 @@ export class AdaptiveScore {
   private readonly level: GainNode
   private readonly layerGain = {} as Record<Layer, GainNode>
   private readonly levels = {} as Record<Layer, number>
-  private timer: number | null = null
-  private nextBarTime = 0
-  private bar = 0
+  private readonly buffers = new Map<Layer, AudioBuffer>()
+  private readonly sources = new Map<Layer, AudioBufferSourceNode>()
+  private readonly loopLength = FORM * BAR
+  private active = false
+  private preparing = false
+  private t0 = 0
 
   constructor(private readonly ctx: AudioContext, destination: AudioNode, reverb: AudioNode) {
     this.bus = ctx.createGain()
@@ -341,25 +385,33 @@ export class AdaptiveScore {
   }
 
   get playing(): boolean {
-    return this.timer !== null
+    return this.active
+  }
+
+  /** Quantos naipes já estão prontos (0..7). */
+  get ready(): number {
+    return this.buffers.size
   }
 
   start(): void {
-    if (this.timer !== null) return
+    if (this.active) return
+    this.active = true
     const now = this.ctx.currentTime
-    this.nextBarTime = now + 0.1
-    this.bar = 0
+    this.t0 = now + 0.1
     this.bus.gain.cancelScheduledValues(now)
     this.bus.gain.setTargetAtTime(0.55, now, 1.2)
-    this.tick()
-    this.timer = window.setInterval(() => this.tick(), 50)
+    for (const l of this.buffers.keys()) this.play(l)
+    this.prepare()
   }
 
   stop(): void {
-    if (this.timer === null) return
-    window.clearInterval(this.timer)
-    this.timer = null
-    this.bus.gain.setTargetAtTime(0, this.ctx.currentTime, 0.4)
+    if (!this.active) return
+    this.active = false
+    const now = this.ctx.currentTime
+    this.bus.gain.cancelScheduledValues(now)
+    this.bus.gain.setTargetAtTime(0, now, 0.12)
+    for (const src of this.sources.values()) src.stop(now + 0.6)
+    this.sources.clear()
   }
 
   /** Volume da trilha (0..1, já na curva de percepção). */
@@ -380,21 +432,39 @@ export class AdaptiveScore {
 
   /** Abaixa a trilha por um instante sob um efeito forte (ducking). */
   duck(amount = 0.55, seconds = 0.7): void {
-    if (!this.playing) return
+    if (!this.active) return
     const t = this.ctx.currentTime
     this.bus.gain.cancelScheduledValues(t)
     this.bus.gain.setTargetAtTime(0.55 * amount, t, 0.04)
     this.bus.gain.setTargetAtTime(0.55, t + seconds, 0.5)
   }
 
-  private tick(): void {
-    // Agenda até 1,5 compasso à frente; camadas quase mudas não geram notas
-    while (this.nextBarTime < this.ctx.currentTime + BAR * 1.5) {
-      const active = {} as Record<Layer, boolean>
-      for (const l of LAYERS) active[l] = this.levels[l] > 0.02
-      scheduleBar(this.ctx, this.layerGain, this.bar, this.nextBarTime, active)
-      this.nextBarTime += BAR
-      this.bar++
+  private prepare(): void {
+    if (this.preparing) return
+    this.preparing = true
+    for (const l of LAYERS) {
+      getStem(l)
+        .then((data) => {
+          const buf = this.ctx.createBuffer(1, data.length, STEM_RATE)
+          buf.copyToChannel(data, 0)
+          this.buffers.set(l, buf)
+          if (this.active) this.play(l)
+        })
+        .catch(() => undefined)
     }
+  }
+
+  /** Começa o loop da camada na fase do relógio comum (entra alinhada com as outras). */
+  private play(l: Layer): void {
+    const buf = this.buffers.get(l)
+    if (!buf || this.sources.has(l)) return
+    const src = this.ctx.createBufferSource()
+    src.buffer = buf
+    src.loop = true
+    src.connect(this.layerGain[l])
+    const when = Math.max(this.t0, this.ctx.currentTime + 0.05)
+    const offset = (((when - this.t0) % this.loopLength) + this.loopLength) % this.loopLength
+    src.start(when, offset)
+    this.sources.set(l, src)
   }
 }

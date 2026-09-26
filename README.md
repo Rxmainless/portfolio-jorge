@@ -20,6 +20,7 @@ pnpm dev          # http://localhost:3000
 pnpm build        # site estático em out/
 pnpm test         # testes unitários (Vitest)
 pnpm test:e2e     # testes no navegador (Playwright), depois do build
+pnpm cv           # regenera o currículo em PDF (public/) a partir de lib/content.ts
 ```
 
 Node 22 ou mais novo e pnpm 11.
@@ -52,7 +53,10 @@ Node 22 ou mais novo e pnpm 11.
 - **Trilha:** "Tema do Reino", composição original em ré menor, 3/4, 84 bpm, com
   ostinato de violoncelos, violinos em trêmulo, tambores de guerra, trompas, coro
   e violino solo. Cada cidade construída acrescenta um naipe, e o reino completo
-  soa como a orquestra inteira.
+  soa como a orquestra inteira. Cada naipe é renderizado uma vez em segundo plano
+  e depois toca em loop, para a trilha não disputar processador com o 3D.
+- **Aparelhos modestos** (celular, poucos núcleos ou pouca memória): sem sombras,
+  30 fps e resolução contida.
 
 ```
 app/(pt)/                 página em português e moodboard

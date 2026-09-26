@@ -133,6 +133,13 @@ export class Continent extends THREE.Group {
     return true
   }
 
+  /** O continente não se move: congela as matrizes, menos as engrenagens das estradas. */
+  freezeStatic(): void {
+    this.updateMatrixWorld(true)
+    this.traverse((o) => (o.matrixAutoUpdate = false))
+    for (const r of this.roads) r.gearbox?.traverse((o) => (o.matrixAutoUpdate = true))
+  }
+
   setRegionHighlight(id: string | null, level: number): void {
     for (const r of this.regions) r.target = r.site.config.id === id ? level : 0
   }

@@ -1,6 +1,6 @@
 import { OfflineAudioContext } from 'node-web-audio-api'
 import { describe, expect, it } from 'vitest'
-import { BAR, BEATS_PER_BAR, CHORDS, FORM, LAYERS, MELODY, scheduleBar, type Layer } from '@/lib/realm/audio/score'
+import { BAR, BEATS_PER_BAR, CHORDS, FORM, LAYERS, MELODY, STEM_RATE, renderStem, scheduleBar, type Layer } from '@/lib/realm/audio/score'
 import { STAGE_SFX } from '@/lib/realm/audio/sfx'
 
 const SR = 22050
@@ -62,5 +62,33 @@ describe('efeitos da construção', () => {
     expect(m.bad).toBe(0)
     expect(m.peak).toBeGreaterThan(0.01)
     expect(m.peak).toBeLessThan(0.95)
+  })
+})
+
+describe('naipes pré-renderizados', () => {
+  const make = (c: number, l: number, r: number) => new OfflineAudioContext(c, l, r) as unknown as globalThis.OfflineAudioContext
+
+  it('têm a duração exata da forma e não saturam', async () => {
+    const data = await renderStem('cello', make)
+    expect(data.length).toBe(Math.round(FORM * BAR * STEM_RATE))
+    expect(measure(data).bad).toBe(0)
+    expect(measure(data).peak).toBeLessThan(0.9)
+  })
+
+  it('o loop não tem emenda: igual à segunda volta de duas formas seguidas', async () => {
+    // Camadas sem ruído (o ruído muda a cada contexto): comparação amostra a amostra
+    for (const layer of ['drone', 'brass'] as const) {
+      const stem = await renderStem(layer, make)
+      const ctx = new OfflineAudioContext(1, Math.round(2 * FORM * BAR * STEM_RATE), STEM_RATE)
+      const out = Object.fromEntries(LAYERS.map((l) => [l, ctx.destination])) as unknown as Record<Layer, AudioNode>
+      const active = Object.fromEntries(LAYERS.map((l) => [l, l === layer])) as Record<Layer, boolean>
+      for (let b = 0; b < 2 * FORM; b++) scheduleBar(ctx as unknown as BaseAudioContext, out, b, b * BAR, active)
+      const two = (await ctx.startRendering()).getChannelData(0)
+      const second = two.subarray(stem.length, 2 * stem.length)
+      let maxDiff = 0
+      for (let i = 0; i < stem.length; i += 7) maxDiff = Math.max(maxDiff, Math.abs(second[i] - stem[i]))
+      // Resta só o arredondamento dos inícios de compasso na grade de amostras (cerca de -40 dB)
+      expect(maxDiff).toBeLessThan(5e-3)
+    }
   })
 })

@@ -32,7 +32,7 @@ export interface SkillGroup {
   items: SkillItem[]
 }
 
-// Fontes: README do perfil github.com/Rxmainless (tecnologias e foco) + repositórios
+// Fontes: README do perfil github.com/Rxmainless, repositórios e competências do LinkedIn
 const skillGroups = (l: Locale): SkillGroup[] => [
   {
     title: l === 'pt-BR' ? 'Backend · foco' : 'Backend · focus',
@@ -46,6 +46,7 @@ const skillGroups = (l: Locale): SkillGroup[] => [
       { name: 'Django', evidence: [], declared: true },
       { name: 'Swagger / OpenAPI', evidence: ['Desafio Itaú'] },
       { name: 'JUnit 5 · Maven', evidence: ['Desafio Itaú'] },
+      { name: l === 'pt-BR' ? 'Programação orientada a objetos' : 'Object-oriented programming', evidence: ['Desafio Itaú'] },
     ],
   },
   {
@@ -82,6 +83,8 @@ const skillGroups = (l: Locale): SkillGroup[] => [
       { name: 'Linux', evidence: [], declared: true },
       { name: 'Cloudflare Pages · D1 · KV', evidence: ['Dash Digital', 'ONDA Feedback'] },
       { name: 'Vitest · pytest', evidence: ['Lumen', 'Dash Digital'] },
+      { name: l === 'pt-BR' ? 'Segurança da informação e privacidade' : 'Information security & privacy', evidence: ['ONDA Feedback', l === 'pt-BR' ? 'certificado Cisco' : 'Cisco certificate'] },
+      { name: l === 'pt-BR' ? 'Validação de dados' : 'Data validation', evidence: ['Desafio Itaú', 'ONDA Feedback'] },
     ],
   },
 ]
@@ -189,15 +192,16 @@ export const copy = {
     stage: 'Construção',
     perfil: {
       title: 'Perfil',
-      lead: 'Sou Jorge Mesquita, estudante de Análise e Desenvolvimento de Sistemas (Senac) e de Engenharia de Software (UNIFG), desenvolvedor interessado na interseção entre código, dados, design e automação.',
-      body: 'Ainda estou no começo, mas nunca estive parado. Minha formação é o ponto de partida para construir coisas úteis, bonitas e bem pensadas.',
-      facts: [['Base', 'Recife · PE'], ['Foco', 'Backend · Python · SQL · APIs · Automação'], ['Idiomas', 'Inglês avançado · Espanhol intermediário · Francês, italiano, chinês e russo (iniciante)'], ['Busca', 'Estágio ou primeira vaga júnior em Backend']],
+      photoAlt: 'Retrato de Jorge Mesquita em preto e branco, de perfil',
+      lead: 'Sou Jorge Mesquita, desenvolvedor backend. Estudo Análise e Desenvolvimento de Sistemas no Senac e Engenharia de Software na UNIFG.',
+      body: 'Trabalho com Python, SQL e automação de processos: scripts e ferramentas que tiram trabalho manual do caminho, integração de APIs e manipulação de dados. Estudo também Linux, programação orientada a objetos e boas práticas de desenvolvimento. A disciplina vem de antes do código, da minha jornada na Academia Nacional de Polícia.',
+      facts: [['Base', 'Recife · PE · aberto a remoto'], ['Foco', 'Backend · Python · SQL · APIs · Automação'], ['Idiomas', 'Inglês avançado · Espanhol intermediário · Francês, italiano, chinês e russo (iniciante)'], ['Busca', 'Vaga de Desenvolvedor Backend Júnior/Pleno · freelances e colaborações']],
     },
     formacao: {
       title: 'Formação',
       level: 'Graduação · em curso',
       degrees: [
-        { name: 'Análise e Desenvolvimento de Sistemas', institution: 'Faculdade Senac', detail: 'via Embarque Digital' },
+        { name: 'Análise e Desenvolvimento de Sistemas', institution: 'Centro Universitário Senac', detail: 'via Embarque Digital · jul. 2026 a ago. 2028' },
         { name: 'Engenharia de Software', institution: 'UNIFG', detail: '1º ano de 4' },
       ],
       note: 'Duas graduações ao mesmo tempo. Na Cidadela, cada meistre forja sua corrente elo a elo, e a formação são os primeiros elos.',
@@ -232,6 +236,9 @@ export const copy = {
       github: 'GitHub',
       linkedin: 'LinkedIn',
       email: 'E-mail',
+      cv: 'Currículo',
+      cvFile: '/curriculo-jorge-mesquita.pdf',
+      cvLabel: 'PDF · 1 página',
     },
     epilogue: { title: 'O reino está de pé', body: 'Seis casas, uma máquina. As habilidades não são uma lista: elas formam um sistema.', top: 'Voltar à capa', footer: 'Jorge Mesquita © 2026 · Homenagem inspirada em Game of Thrones, com arte e código originais.' },
     moodboard: 'Moodboard',
@@ -259,15 +266,16 @@ export const copy = {
     stage: 'Construction',
     perfil: {
       title: 'Profile',
-      lead: 'I am Jorge Mesquita, studying Analysis and Systems Development (Senac) and Software Engineering (UNIFG), a developer interested in the intersection of code, data, design and automation.',
-      body: 'I am still at the beginning, but never standing still. My degree is the starting point for building things that are useful, beautiful and well-considered.',
-      facts: [['Based in', 'Recife · Brazil'], ['Focus', 'Backend · Python · SQL · APIs · Automation'], ['Languages', 'Advanced English · Intermediate Spanish · Beginner French, Italian, Chinese and Russian'], ['Seeking', 'Internship or first junior Backend role']],
+      photoAlt: 'Black and white side portrait of Jorge Mesquita',
+      lead: 'I am Jorge Mesquita, a backend developer. I study Analysis and Systems Development at Senac and Software Engineering at UNIFG.',
+      body: 'I work with Python, SQL and process automation: scripts and tools that take manual work out of the way, API integration and data handling. I also study Linux, object-oriented programming and good development practices. The discipline comes from before code, from my time at the Brazilian National Police Academy.',
+      facts: [['Based in', 'Recife · Brazil · open to remote'], ['Focus', 'Backend · Python · SQL · APIs · Automation'], ['Languages', 'Advanced English · Intermediate Spanish · Beginner French, Italian, Chinese and Russian'], ['Seeking', 'Junior/Mid Backend Developer role · freelance and collaborations']],
     },
     formacao: {
       title: 'Education',
       level: 'Degree · in progress',
       degrees: [
-        { name: 'Analysis and Systems Development', institution: 'Faculdade Senac', detail: 'through Embarque Digital' },
+        { name: 'Analysis and Systems Development', institution: 'Centro Universitário Senac', detail: 'through Embarque Digital · Jul 2026 to Aug 2028' },
         { name: 'Software Engineering', institution: 'UNIFG', detail: 'year 1 of 4' },
       ],
       note: 'Two degrees at once. At the Citadel, every maester forges a chain link by link, and these are the first links.',
@@ -291,7 +299,7 @@ export const copy = {
       legend: '◆ declared focus · names = projects where I used it · GitHub profile = listed on my profile, no public repo yet',
     },
     projetos: { title: 'Projects', lead: 'What has actually been forged.', stack: 'Stack' },
-    contato: { title: 'Contact', lead: 'Send a raven. Reach me here:', github: 'GitHub', linkedin: 'LinkedIn', email: 'E-mail' },
+    contato: { title: 'Contact', lead: 'Send a raven. Reach me here:', github: 'GitHub', linkedin: 'LinkedIn', email: 'E-mail', cv: 'Résumé', cvFile: '/resume-jorge-mesquita.pdf', cvLabel: 'PDF · 1 page' },
     epilogue: { title: 'The realm stands', body: 'Six houses, one machine. Skills are not a list: they form a system.', top: 'Back to cover', footer: 'Jorge Mesquita © 2026 · Tribute inspired by Game of Thrones, with original art and code.' },
     moodboard: 'Moodboard',
     sound: { on: 'Sound', off: 'Sound', label: 'Toggle machine sounds', invite: '♪ Turn on sound to hear the machine', mixer: 'Sound mixer', master: 'Master', music: 'Score', sfx: 'Effects' },

@@ -34,6 +34,8 @@ export const metadataPt: Metadata = {
     type: 'website',
   },
   twitter: { card: 'summary_large_image' },
+  authors: [{ name: 'Jorge Mesquita', url: 'https://www.linkedin.com/in/mesquitaforall' }],
+  creator: 'Jorge Mesquita',
 }
 
 export const metadataEn: Metadata = {
@@ -49,4 +51,6 @@ export const metadataEn: Metadata = {
     type: 'website',
   },
   twitter: { card: 'summary_large_image' },
+  authors: [{ name: 'Jorge Mesquita', url: 'https://www.linkedin.com/in/mesquitaforall' }],
+  creator: 'Jorge Mesquita',
 }

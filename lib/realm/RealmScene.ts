@@ -87,19 +87,26 @@ export class RealmScene {
   private perfAcc = 0
   private perfFrames = 0
   private perfWarmup = 3
+  private readonly lowTier: boolean
+  private viewW = 1
+  private viewH = 1
   private readonly onPointer = (e: PointerEvent) => this.pointer.set((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1)
   private readonly tick = (_t: number, dms: number) => this.frame(Math.min(dms / 1000, 0.1))
 
   constructor(private readonly container: HTMLElement, private readonly opts: RealmSceneOptions) {
     this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', stencil: true })
+    // Aparelho modesto (celular, poucos núcleos ou pouca memória): sem sombras, resolução contida e 30 fps
+    const nav = navigator as Navigator & { deviceMemory?: number }
     const coarse = window.matchMedia('(pointer: coarse)').matches
-    this.pixelRatio = Math.min(window.devicePixelRatio, opts.mode === 'preview' || coarse ? 1.5 : 1.75)
-    // Sem GPU (renderização por software): começa na qualidade mínima
+    let lowTier = coarse || (nav.hardwareConcurrency ?? 8) <= 4 || (nav.deviceMemory ?? 8) <= 4
+    this.renderer = new THREE.WebGLRenderer({ antialias: !lowTier, powerPreference: 'high-performance', stencil: true })
+    // Sem GPU (renderização por software): qualidade mínima
     const software = isSoftwareRenderer(this.renderer)
-    if (software) this.pixelRatio = 0.75
+    lowTier ||= software
+    this.lowTier = lowTier
+    this.pixelRatio = Math.min(window.devicePixelRatio, software ? 0.75 : lowTier ? 1.25 : opts.mode === 'preview' ? 1.5 : 1.75)
     this.renderer.setPixelRatio(this.pixelRatio)
-    this.renderer.shadowMap.enabled = !software
+    this.renderer.shadowMap.enabled = !lowTier
     this.renderer.shadowMap.type = THREE.PCFShadowMap
     this.renderer.shadowMap.autoUpdate = false
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
@@ -136,6 +143,7 @@ export class RealmScene {
     if (opts.mode === 'journey') {
       this.continent = new Continent(this.sites, roads)
       this.scene.add(this.continent)
+      this.continent.freezeStatic()
       this.stops = this.computeStops()
       this.journey = -1
       this.applyPose(this.poseAt(-1), true)
@@ -244,8 +252,8 @@ export class RealmScene {
     const s = this.sites[i]
     this.camera.updateMatrixWorld()
     this.tmp.set(s.position.x, height, s.position.z).project(this.camera)
-    const r = this.renderer.domElement.getBoundingClientRect()
-    return { x: (this.tmp.x * 0.5 + 0.5) * r.width, y: (-this.tmp.y * 0.5 + 0.5) * r.height, visible: this.tmp.z < 1 && Math.abs(this.tmp.x) < 1.1 && Math.abs(this.tmp.y) < 1.1 }
+    // Tamanho guardado no resize: ler o layout a cada quadro forçaria recálculo de estilo
+    return { x: (this.tmp.x * 0.5 + 0.5) * this.viewW, y: (-this.tmp.y * 0.5 + 0.5) * this.viewH, visible: this.tmp.z < 1 && Math.abs(this.tmp.x) < 1.1 && Math.abs(this.tmp.y) < 1.1 }
   }
 
   // Câmera
@@ -313,8 +321,8 @@ export class RealmScene {
   // Loop
 
   /** Estado atual da qualidade adaptativa (para inspeção). */
-  get quality(): { pixelRatio: number; shadows: boolean } {
-    return { pixelRatio: this.pixelRatio, shadows: this.renderer.shadowMap.enabled }
+  get quality(): { pixelRatio: number; shadows: boolean; lowTier: boolean } {
+    return { pixelRatio: this.pixelRatio, shadows: this.renderer.shadowMap.enabled, lowTier: this.lowTier }
   }
 
   private frame(dt: number): void {
@@ -338,12 +346,20 @@ export class RealmScene {
     }
     this.camera.lookAt(this.current.target)
 
+    // Perfil modesto: um quadro desenhado a cada dois (30 fps); o estado avança sempre
+    const skipDraw = this.lowTier && this.opts.mode === 'journey' && this.frameCount % 2 === 1
     let active: SkillSite | null = null
     this.sites.forEach((s, i) => {
       if (s.built) s.state.idle += dt * 0.18
       s.update(dt)
-      this.banners[i].update(this.time, s.built ? 1 : 0.35)
+      if (!skipDraw) this.banners[i].update(this.time, s.built ? 1 : 0.35)
       if (s.constructing) active = s
+      // Perfil modesto: guinchos e casa de máquinas longe da câmera viram poucos pixels; não desenha
+      if (this.lowTier) {
+        const near = s.constructing || this.camera.position.distanceToSquared(s.position) < 110 * 110
+        s.engine.visible = near
+        for (const w of s.winches) w.visible = near
+      }
     })
     this.continent?.update(dt)
     if (this.sound) this.updateSound(dt)
@@ -355,8 +371,9 @@ export class RealmScene {
 
     // Parado (sem obra, câmera assentada, ponteiro quieto): desenha a 30 fps
     const settled = !a && this.current.position.distanceToSquared(this.desired.position) < 1e-3 && this.pointerSmooth.distanceToSquared(this.pointer) < 1e-5
-    if (settled && this.opts.mode === 'journey' && this.frameCount % 2 === 1) return
-    if (a || this.frameCount % (settled ? 12 : 4) === 0) this.renderer.shadowMap.needsUpdate = true
+    if (skipDraw || (settled && this.opts.mode === 'journey' && this.frameCount % 2 === 1)) return
+    // Sombra: a cada 2 quadros durante a obra, a cada 4 em movimento, a cada 12 parada
+    if (this.frameCount % (a ? 2 : settled ? 12 : 4) === 0) this.renderer.shadowMap.needsUpdate = true
     const dist = this.camera.position.distanceTo(this.current.target)
     ;(this.scene.fog as THREE.FogExp2).density = 0.62 / Math.max(dist, 10)
     this.renderer.render(this.scene, this.camera)
@@ -424,6 +441,8 @@ export class RealmScene {
   private resize(): void {
     const w = this.container.clientWidth
     const h = this.container.clientHeight
+    this.viewW = w
+    this.viewH = h
     this.renderer.setSize(w, h, false)
     this.camera.aspect = w / Math.max(h, 1)
     this.camera.fov = this.camera.aspect < 1 ? 50 : 36

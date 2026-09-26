@@ -5,7 +5,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 import { SplitText } from 'gsap/SplitText'
-import { ArrowUpRight, Menu, X } from 'lucide-react'
+import { ArrowDown, ArrowUpRight, Menu, X } from 'lucide-react'
 import { EMAIL, GITHUB, LINKEDIN, getCopy, type Copy, type Locale } from '@/lib/content'
 import { houses, type House } from '@/lib/realm-data'
 import type { RealmScene } from '@/lib/realm/RealmScene'
@@ -206,7 +206,11 @@ export function Portfolio({ initialLocale = 'pt-BR' }: { initialLocale?: Locale 
     }, rootRef)
 
     // HUD da máquina + rótulos do mapa (sem re-render do React)
+    // Só escreve no DOM o que mudou (cada escrita pode custar um recálculo de layout)
     let raf = 0
+    let hudText = ''
+    let hudOpacity = ''
+    const labelShown = houses.map(() => false)
     const loop = () => {
       const j = journeyRef.current
       const near = Math.round(j) - 1
@@ -216,18 +220,26 @@ export function Portfolio({ initialLocale = 'pt-BR' }: { initialLocale?: Locale 
           const st = realm.stageOf(near)
           const h = houses[near]
           const bar = '▓'.repeat(Math.round(st.progress * 14)).padEnd(14, '░')
-          hud.textContent = `${h.house} · ${h.seat}   ${st.index >= 0 ? String(st.index + 1).padStart(2, '0') + ' ' + st.label : '—'}   ${bar} ${Math.round(st.progress * 100)}%`
-          hud.style.opacity = st.progress > 0 ? '1' : '0.4'
-        } else hud.style.opacity = '0'
+          const text = `${h.house} · ${h.seat}   ${st.index >= 0 ? String(st.index + 1).padStart(2, '0') + ' ' + st.label : '—'}   ${bar} ${Math.round(st.progress * 100)}%`
+          if (text !== hudText) hud.textContent = hudText = text
+          const op = st.progress > 0 ? '1' : '0.4'
+          if (op !== hudOpacity) hud.style.opacity = hudOpacity = op
+        } else if (hudOpacity !== '0') hud.style.opacity = hudOpacity = '0'
       }
       // Só com a capa estabilizada (não durante o voo de abertura) e no epílogo
       const showLabels = (j > -0.12 && j < 0.35) || j > houses.length + 0.4
       houses.forEach((_, i) => {
         const el = labelsRef.current[i]
         if (!el) return
+        if (!showLabels) {
+          if (labelShown[i]) el.style.opacity = '0'
+          labelShown[i] = false
+          return
+        }
         const pr = realm.project(i)
         el.style.transform = `translate(${pr.x.toFixed(1)}px, ${pr.y.toFixed(1)}px) translate(-50%, -100%)`
-        el.style.opacity = showLabels && pr.visible ? '1' : '0'
+        if (labelShown[i] !== pr.visible) el.style.opacity = pr.visible ? '1' : '0'
+        labelShown[i] = pr.visible
       })
       const key = buildState.map((b) => (b >= 0.999 ? 1 : 0)).join('')
       if (key !== lastBuildsKey) {
@@ -412,7 +424,13 @@ function SectionBody({ id, copy }: { id: House['section']; copy: Copy }) {
     case 'perfil':
       return (
         <div className="house-body">
-          <p className="lead">{copy.perfil.lead}</p>
+          <div className="perfil-intro">
+            <figure className="portrait">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/jorge-mesquita.png" alt={copy.perfil.photoAlt} width={200} height={200} decoding="async" />
+            </figure>
+            <p className="lead">{copy.perfil.lead}</p>
+          </div>
           <p>{copy.perfil.body}</p>
           <dl className="facts stagger-in">
             {copy.perfil.facts.map(([k, v]) => (
@@ -542,6 +560,12 @@ function SectionBody({ id, copy }: { id: House['section']; copy: Copy }) {
             <span className="eyebrow">{copy.contato.email}</span>
             <span className="raven-url">
               {EMAIL} <ArrowUpRight aria-hidden="true" />
+            </span>
+          </a>
+          <a className="raven-link" href={copy.contato.cvFile} download>
+            <span className="eyebrow">{copy.contato.cv}</span>
+            <span className="raven-url">
+              {copy.contato.cvLabel} <ArrowDown aria-hidden="true" />
             </span>
           </a>
         </div>

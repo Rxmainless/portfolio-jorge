@@ -35,19 +35,37 @@ function SoundBoard() {
       window.setTimeout(() => old.disconnect(), 800)
       return
     }
-    const { scheduleBar, LAYERS, BAR, FORM } = await import('@/lib/realm/audio/score')
+    const { getStem, LAYERS, BAR, FORM, STEM_RATE } = await import('@/lib/realm/audio/score')
     const bus = ctx.createGain()
-    bus.gain.value = 0.7
     bus.connect(ctx.destination)
     scoreBus = bus
+    const t0 = ctx.currentTime + 0.15
+    const end = t0 + FORM * BAR
+    bus.gain.setValueAtTime(0.7, t0)
+    bus.gain.setValueAtTime(0.7, end - 1.5)
+    bus.gain.linearRampToValueAtTime(0, end)
     window.setTimeout(() => {
       if (scoreBus === bus) scoreBus = null
-    }, (FORM * BAR + 3) * 1000)
-    const outs = Object.fromEntries(LAYERS.map((l) => [l, bus as AudioNode])) as unknown as Record<(typeof LAYERS)[number], AudioNode>
-    const t0 = ctx.currentTime + 0.1
-    Array.from({ length: FORM }, (_, bar) => {
-      const active = Object.fromEntries(LAYERS.map((l, i) => [l, i * 2 <= bar])) as unknown as Record<(typeof LAYERS)[number], boolean>
-      scheduleBar(ctx, outs, bar, t0 + bar * BAR, active)
+    }, (FORM * BAR + 1) * 1000)
+    // Os naipes (pré-renderizados, em cache) entram um a cada 2 compassos
+    LAYERS.forEach((layer, i) => {
+      const gain = ctx.createGain()
+      const enter = t0 + i * 2 * BAR
+      gain.gain.setValueAtTime(0, t0)
+      gain.gain.setValueAtTime(0, enter)
+      gain.gain.linearRampToValueAtTime(1, enter + 0.4)
+      gain.connect(bus)
+      getStem(layer).then((data) => {
+        const when = Math.max(t0, ctx.currentTime + 0.05)
+        if (scoreBus !== bus || when >= end) return
+        const buf = ctx.createBuffer(1, data.length, STEM_RATE)
+        buf.copyToChannel(data, 0)
+        const src = ctx.createBufferSource()
+        src.buffer = buf
+        src.connect(gain)
+        src.start(when, when - t0)
+        src.stop(end + 0.05)
+      })
     })
   }
   const play = async (id: string) => {
@@ -242,6 +260,23 @@ export function Moodboard() {
         <figure className="mb-key">
           <RealmPreview />
           <figcaption>Imagem-chave · a máquina constrói uma cidade (render ao vivo)</figcaption>
+        </figure>
+
+        <figure className="mb-photo">
+          <div className="mb-photo-row">
+            {[
+              ['raw', 'Original: preto e branco, luz lateral, sombra dura'],
+              ['brass', 'Viragem em latão, como no Perfil'],
+              ['scan', 'Com scanlines e grão do terminal'],
+            ].map(([k, label]) => (
+              <div key={k} className={`mb-photo-cell is-${k}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/jorge-mesquita.png" alt="" width={200} height={200} />
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
+          <figcaption>Fotografia · retrato do autor e o tratamento usado no portfólio</figcaption>
         </figure>
 
         <div className="mb-ornaments" aria-label="Ornamentos ASCII">

@@ -47,7 +47,23 @@ export class RealmAudio implements RealmSoundSink {
   private readonly onVisibility = () => {
     if (!this.score) return
     if (document.hidden) this.score.stop()
-    else if (this.enabled) this.score.start()
+    else if (this.enabled) this.revive()
+  }
+  // O sistema pode suspender o áudio (outra mídia, chamada, economia de energia).
+  // Com o som ligado, o próximo toque na tela retoma de onde parou.
+  private readonly onGesture = () => {
+    if (this.enabled && this.ctx && this.ctx.state !== 'running') this.revive()
+  }
+  private readonly onStateChange = () => {
+    if (this.enabled && this.ctx?.state === 'running' && !document.hidden) this.score?.start()
+  }
+
+  private revive(): void {
+    const ctx = this.ctx
+    if (!ctx) return
+    ctx.resume().catch(() => undefined).then(() => {
+      if (this.enabled && ctx.state === 'running' && !document.hidden) this.score?.start()
+    })
   }
 
   get isEnabled(): boolean {
@@ -169,6 +185,10 @@ export class RealmAudio implements RealmSoundSink {
 
   dispose(): void {
     document.removeEventListener('visibilitychange', this.onVisibility)
+    window.removeEventListener('pointerdown', this.onGesture)
+    window.removeEventListener('touchend', this.onGesture)
+    window.removeEventListener('keydown', this.onGesture)
+    if (this.ctx) this.ctx.onstatechange = null
     this.score?.stop()
     this.ctx?.close().catch(() => undefined)
     this.ctx = null
@@ -241,6 +261,10 @@ export class RealmAudio implements RealmSoundSink {
     this.score = new AdaptiveScore(ctx, this.master, reverb)
     this.score.setVolume(curve(this.vol.music))
     document.addEventListener('visibilitychange', this.onVisibility)
+    ctx.onstatechange = this.onStateChange
+    window.addEventListener('pointerdown', this.onGesture, { passive: true })
+    window.addEventListener('touchend', this.onGesture, { passive: true })
+    window.addEventListener('keydown', this.onGesture)
   }
 
   private impulse(ctx: BaseAudioContext, seconds: number): AudioBuffer {
