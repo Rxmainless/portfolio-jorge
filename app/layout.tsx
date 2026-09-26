@@ -8,17 +8,20 @@ const display = Cinzel({ subsets: ['latin'], weight: ['400', '600', '800'], vari
 const serif = Cormorant_Garamond({ subsets: ['latin'], weight: ['400', '500', '600'], style: ['normal', 'italic'], variable: '--font-serif', display: 'swap' })
 const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-mono', display: 'swap' })
 
+// URL pública: a Vercel preenche VERCEL_PROJECT_PRODUCTION_URL; em outro host, defina SITE_URL
+const siteUrl = process.env.SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:3000')
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: 'Jorge Mesquita | O Reino dos Sistemas',
-  description: 'Portfólio de Jorge Mesquita — Análise e Desenvolvimento de Sistemas. Um reino onde cada habilidade é uma cidade construída por máquinas.',
-  icons: {
-    icon: [
-      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
-      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: '/apple-icon.png',
+  description: 'Portfólio de Jorge Mesquita — ADS (Senac) e Engenharia de Software (UNIFG). Um reino onde cada habilidade é uma cidade construída por máquinas.',
+  openGraph: {
+    title: 'Jorge Mesquita | O Reino dos Sistemas',
+    description: 'Portfólio de ADS e Engenharia de Software: um reino onde cada habilidade é uma cidade construída por máquinas.',
+    locale: 'pt_BR',
+    type: 'website',
   },
+  twitter: { card: 'summary_large_image' },
 }
 
 export const viewport: Viewport = {

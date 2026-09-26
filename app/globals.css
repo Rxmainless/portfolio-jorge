@@ -113,6 +113,7 @@ h1, h2, h3, h4, p { margin: 0; }
 .mb-sounds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
 .mb-sound { all: unset; box-sizing: border-box; cursor: pointer; background: var(--obsidian); padding: 1.2rem 1.3rem; display: grid; grid-template-columns: 32px 1fr auto; grid-template-rows: auto auto; column-gap: 0.8rem; align-items: center; transition: background 0.25s; }
 .mb-sound:hover, .mb-sound:focus-visible { background: #15120e; }
+.mb-score { grid-column: 1 / -1; background: linear-gradient(90deg, rgba(176, 141, 87, 0.12), var(--obsidian) 70%); }
 .mb-sound .n { grid-row: 1 / 3; font: 11px var(--mono); color: var(--brass); }
 .mb-sound strong { font: 600 0.95rem var(--display); letter-spacing: 0.1em; text-transform: uppercase; }
 .mb-sound small { grid-column: 2; color: var(--dim); font-size: 0.95rem; font-style: italic; }

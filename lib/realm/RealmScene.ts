@@ -364,6 +364,7 @@ export class RealmScene {
     const camSpeed = this.prevCam.distanceTo(this.camera.position) / dt
     this.prevCam.copy(this.camera.position)
     this.sound!.setActivity(machine, Math.min(1, camSpeed / 60))
+    this.sound!.setBuildLevels(this.builds.map((b) => b.progress))
   }
 
   private resize(): void {

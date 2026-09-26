@@ -46,6 +46,7 @@ export function Portfolio() {
     if (process.env.NODE_ENV !== 'production') {
       Object.assign(window, { __audio: audio })
       import('@/lib/realm/audio/sfx').then((m) => Object.assign(window, { __sfx: m })) // validação offline
+      import('@/lib/realm/audio/score').then((m) => Object.assign(window, { __score: m }))
     }
     // Preferência salva: religa no primeiro clique/tecla (autoplay exige gesto)
     let cleanup = () => {}

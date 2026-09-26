@@ -20,6 +20,22 @@ const SOUNDS: [string, string, string][] = [
 
 /** Toca cada efeito isolado (o contexto de áudio nasce no clique). */
 function SoundBoard() {
+  /** Tema do Reino: um compasso por camada, somando até a orquestra completa. */
+  const playScore = async () => {
+    const w = window as unknown as { __mbAudio?: AudioContext }
+    const ctx = (w.__mbAudio ??= new AudioContext())
+    await ctx.resume()
+    const { scheduleBar, LAYERS, BAR } = await import('@/lib/realm/audio/score')
+    const bus = ctx.createGain()
+    bus.gain.value = 0.7
+    bus.connect(ctx.destination)
+    const outs = Object.fromEntries(LAYERS.map((l) => [l, bus as AudioNode])) as unknown as Record<(typeof LAYERS)[number], AudioNode>
+    const t0 = ctx.currentTime + 0.1
+    LAYERS.forEach((_, bar) => {
+      const active = Object.fromEntries(LAYERS.map((l, i) => [l, i <= bar])) as unknown as Record<(typeof LAYERS)[number], boolean>
+      scheduleBar(ctx, outs, bar, t0 + bar * BAR, active)
+    })
+  }
   const play = async (id: string) => {
     const w = window as unknown as { __mbAudio?: AudioContext }
     const ctx = (w.__mbAudio ??= new AudioContext())
@@ -32,6 +48,12 @@ function SoundBoard() {
   }
   return (
     <div className="mb-sounds">
+      <button type="button" className="mb-sound mb-score" onClick={playScore}>
+        <span className="n">♪</span>
+        <strong>Tema do Reino</strong>
+        <small>trilha original · ré menor · uma camada por casa (≈ 23 s)</small>
+        <span className="play" aria-hidden="true">▶</span>
+      </button>
       {SOUNDS.map(([id, name, desc], i) => (
         <button key={id} type="button" className="mb-sound" onClick={() => play(id)}>
           <span className="n">{String(i + 1).padStart(2, '0')}</span>
@@ -243,7 +265,7 @@ export function Moodboard() {
         <div className="mb-head">
           <span className="n">06</span>
           <h2 id="mb-sound" className="display">Paisagem sonora</h2>
-          <p>Nada de música: só a máquina. Latão, ferro e pedra, sintetizados em tempo real (Web Audio API) — cada etapa da construção tem sua voz, e o ronco do motor segue a velocidade do scroll.</p>
+          <p>Uma trilha original que se forma com o reino — cada casa construída acrescenta um instrumento — e a voz da máquina. Latão, ferro e pedra, sintetizados em tempo real (Web Audio API) — cada etapa da construção tem sua voz, e o ronco do motor segue a velocidade do scroll.</p>
         </div>
         <SoundBoard />
       </section>

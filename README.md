@@ -43,17 +43,26 @@ lib/
     world/…                 engrenagens, cabos, guinchos, cidades, continente, estandartes
 ```
 
-## Som
+## Som e trilha
+
+**Trilha adaptativa original — "Tema do Reino"** (ré menor, 72 bpm, 4/4,
+Dm–B♭–Gm–A). Cada casa construída acrescenta uma camada: pedal grave (sempre) →
+violoncelo (Winterfell) → tambores (Vilavelha) → harpa (Jardim de Cima) →
+metais (Rochedo Casterly) → coro (Pedra do Dragão) → melodia solo e sinos
+(Castelo Negro). No epílogo, o reino completo soa como a orquestra completa;
+rolar de volta tira as camadas. Composição própria — não usa nem imita a música
+oficial da série.
 
 Todos os sons são sintetizados em tempo real (Web Audio API) — nenhum arquivo
 de áudio. Cada etapa da construção tem seu efeito; o ronco do motor e os cliques
 de dente seguem a velocidade do scroll; rolar para cima rebobina. O som só liga
 pelo botão **Som** (exigência de autoplay dos navegadores) e a preferência fica
-salva. Ouça cada efeito isolado em `/moodboard` → Paisagem sonora.
+salva. Ouça o tema e cada efeito isolado em `/moodboard` → Paisagem sonora.
 
 ```
 lib/realm/audio/sfx.ts         efeitos (tocam também em OfflineAudioContext)
-lib/realm/audio/RealmAudio.ts  mixagem, reverb, motor/vento contínuos, limites anti-avalanche
+lib/realm/audio/score.ts       trilha adaptativa (compassos agendados; renderizável offline)
+lib/realm/audio/RealmAudio.ts  mixagem, reverb, trilha, motor/vento contínuos, limites anti-avalanche
 ```
 
 ## Conteúdo

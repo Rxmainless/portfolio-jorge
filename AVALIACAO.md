@@ -13,12 +13,12 @@ requisito de som; pesos somam 10. Notas baseadas nos testes listados abaixo.
 | 5 | Scroll com GSAP | 1,3 | 1,3 | ScrollTrigger (scrub) controla câmera e construção; SplitText nos títulos; ScrollToPlugin na navegação; painéis revelados por scroll. |
 | 6 | Qualidade técnica (build, desempenho, responsivo, acessibilidade) | 1,0 | 0,95 | `next build` com checagem de tipos; produção: 72 fps rolando a página inteira, pior frame 18,7 ms, console sem erros; 1440×900, 963 px e 375×812 sem rolagem horizontal; `prefers-reduced-motion`, ARIA, foco visível. **Desconto:** GPU de celular real não testada. |
 | 7 | Conteúdo real (sem inventar) | 0,9 | 0,85 | Fontes: projeto original, perfil e repositórios do GitHub, READMEs locais, certificado Cisco e informação do autor; habilidades separam o que tem repositório do que só está listado no perfil. **Desconto:** o LinkedIn não pôde ser lido (exige login). |
-| 8 | Som: efeitos das construções | 1,2 | 1,1 | 9 efeitos sintetizados (Web Audio, sem arquivos), um por etapa, + ronco do motor e cliques de dente guiados pela velocidade do scroll, vento nos voos, rebobinar ao subir; liga só com gesto do usuário e lembra a preferência. **Desconto:** validado por medição (RMS/pico) e contagem de eventos, não por audição. |
-| | **Total** | **10** | **9,65** | |
+| 8 | Som: trilha e efeitos das construções | 1,2 | 1,15 | Trilha adaptativa original (7 camadas, uma por casa, entrando conforme cada cidade é construída) + 9 efeitos sintetizados (Web Audio, sem arquivos), ronco do motor e cliques guiados pelo scroll, vento nos voos, rebobinar ao subir, ducking da trilha sob os efeitos; liga só com gesto do usuário e lembra a preferência. **Desconto:** validado por medição (RMS/pico) e por estado das camadas, não por audição. |
+| | **Total** | **10** | **9,70** | |
 
 ## Veredito
 
-**Aprovado — 9,65 > 9.**
+**Aprovado — 9,70 > 9.**
 
 ## Verificação realizada
 
@@ -30,6 +30,11 @@ requisito de som; pesos somam 10. Notas baseadas nos testes listados abaixo.
   mixagem rebalanceada (engrenagens 3×, cliques 3,6×).
 - Som ao vivo: clique real liga o AudioContext; scroll pela casa Stark → etapas na ordem;
   salto pelo menu → 3 sons (antes 38); scroll rápido → 5; subir → rebobina sem sons de etapa.
+- Trilha, render offline: 7 camadas sem NaN, orquestra completa com pico 0,48; mixagem
+  rebalanceada (coro 2,2×, harpa 1,6×, tambores −25%). Ao vivo: capa = só pedal;
+  após Winterfell entra o violoncelo; epílogo = 7 camadas; voltar ao topo = só pedal.
+- Identidade de compartilhamento: favicon (engrenagem de latão), ícone Apple e card
+  Open Graph 1200×630 gerados e conferidos visualmente.
 - Religar som com preferência salva sem o clique no botão desligar em seguida (bug corrigido).
 - Idioma EN: título, capa, menu, cursos e formação traduzidos; volta para PT.
 - Moodboard: 5 seções + paisagem sonora, 6 sigilos, 6 estandartes, prévia 3D, botões de som.

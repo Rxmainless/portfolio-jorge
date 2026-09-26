@@ -1,3 +1,4 @@
+import { AdaptiveScore, LAYERS, type Layer } from './score'
 import { noiseBuffer, rewind, STAGE_SFX, tick, uiClick } from './sfx'
 
 /** Interface que a cena 3D usa para pedir sons (a cena não conhece Web Audio). */
@@ -10,6 +11,8 @@ export interface RealmSoundSink {
   tick(intensity: number): void
   /** Níveis contínuos: máquina trabalhando e câmera em voo (0..1). */
   setActivity(machine: number, flight: number): void
+  /** Progresso de construção de cada cidade (0..1), na ordem das casas — conduz a trilha. */
+  setBuildLevels(progress: number[]): void
 }
 
 /**
@@ -32,6 +35,12 @@ export class RealmAudio implements RealmSoundSink {
   private lastSite = -1
   private machine = 0
   private flight = 0
+  private score: AdaptiveScore | null = null
+  private readonly onVisibility = () => {
+    if (!this.score) return
+    if (document.hidden) this.score.stop()
+    else if (this.enabled) this.score.start()
+  }
 
   get isEnabled(): boolean {
     return this.enabled
@@ -48,12 +57,14 @@ export class RealmAudio implements RealmSoundSink {
       this.master.gain.cancelScheduledValues(ctx.currentTime)
       this.master.gain.setTargetAtTime(0.85, ctx.currentTime, 0.25)
       uiClick(ctx, this.sfx, ctx.currentTime + 0.02)
+      this.score?.start()
     }
     return this.enabled
   }
 
   disable(): void {
     this.enabled = false
+    this.score?.stop()
     if (!this.ctx) return
     const t = this.ctx.currentTime
     this.master.gain.cancelScheduledValues(t)
@@ -85,6 +96,8 @@ export class RealmAudio implements RealmSoundSink {
     this.lastSite = site
     this.lastStage.set(key, now)
     fx(this.ctx, this.sfx, now + 0.01)
+    // A trilha abre espaço para os baques e o sino
+    if (stageId !== 'gears' && stageId !== 'cables') this.score?.duck(stageId === 'complete' ? 0.45 : 0.7, stageId === 'complete' ? 1.6 : 0.6)
   }
 
   rewind(): void {
@@ -115,7 +128,21 @@ export class RealmAudio implements RealmSoundSink {
     this.windFilter.frequency.setTargetAtTime(280 + this.flight * 900, t, 0.25)
   }
 
+  /** Cada cidade construída acrescenta sua camada; a base (pedal) soa sempre. */
+  setBuildLevels(progress: number[]): void {
+    if (!this.score) return
+    const levels: Partial<Record<Layer, number>> = { drone: 1 }
+    LAYERS.slice(1).forEach((l, i) => {
+      const p = progress[i] ?? 0
+      // A camada começa a entrar na metade da obra e está plena quando a cidade fica pronta
+      levels[l] = Math.max(0, Math.min(1, (p - 0.45) / 0.55))
+    })
+    this.score.setLevels(levels)
+  }
+
   dispose(): void {
+    document.removeEventListener('visibilitychange', this.onVisibility)
+    this.score?.stop()
     this.ctx?.close().catch(() => undefined)
     this.ctx = null
   }
@@ -183,6 +210,9 @@ export class RealmAudio implements RealmSoundSink {
     air.connect(this.windFilter).connect(this.wind).connect(this.master)
     this.wind.connect(reverb)
     air.start()
+
+    this.score = new AdaptiveScore(ctx, this.master, reverb)
+    document.addEventListener('visibilitychange', this.onVisibility)
   }
 
   private impulse(ctx: BaseAudioContext, seconds: number): AudioBuffer {

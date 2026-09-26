@@ -1,6 +1,6 @@
 {
-  "name": "my-project",
-  "version": "0.1.0",
+  "name": "portfolio-jorge",
+  "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@12.3.4",
   "scripts": {
@@ -32,5 +32,6 @@
     "postcss": "^8.5",
     "tailwindcss": "^4.3.3",
     "typescript": "5.7.3"
-  }
+  },
+  "description": "Portfólio de Jorge Mesquita — O Reino dos Sistemas (Next.js, Three.js, GSAP, Web Audio)"
 }
