@@ -2,6 +2,8 @@
 
 Portfólio de Jorge Mesquita, estudante de ADS (Senac) e Engenharia de Software (UNIFG).
 
+**No ar:** https://portfolio-jorge.pages.dev
+
 O tema é uma homenagem a Game of Thrones com estética ASCII goth. Cada seção do
 portfólio é uma casa do continente, e cada casa tem uma cidade que uma máquina de
 latão constrói conforme a página rola: engrenagens, cabos, plataforma, fundação,

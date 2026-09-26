@@ -26,6 +26,9 @@ elevado para maior que 9. Os pesos somam 10 e cada nota se apoia no que foi test
 - `pnpm test:e2e`, em desktop e celular: rolagem completa até 6/6 cidades sem erros
   no console, página sem WebGL, modo leitura, regulador de som, `/en` com `lang` e
   `hreflang`, moodboard e 404.
+- Site publicado (https://portfolio-jorge.pages.dev): os 12 testes no navegador
+  passam contra o endereço real; rotas, 404, cards de compartilhamento por idioma,
+  canonical, hreflang e cabeçalhos conferidos.
 - Emulador do Cloudflare Pages (`wrangler pages dev out`): rotas, tipos de arquivo,
   cabeçalhos de cache e segurança, 404.
 - Lighthouse, celular e desktop: acessibilidade, boas práticas e SEO em 100. Desempenho
