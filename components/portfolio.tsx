@@ -109,6 +109,20 @@ export function Portfolio() {
     setBuilds(houses.map(() => 1))
   }, [])
 
+  // Título forjado logo na chegada, sem esperar o 3D (o mapa aparece por trás quando fica pronto)
+  const titleForged = useRef(false)
+  useEffect(() => {
+    if (titleForged.current) return
+    titleForged.current = true
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const ctx = gsap.context(() => {
+      const title = new SplitText('.cover-title', { type: 'words,chars' })
+      gsap.from(title.chars, { yPercent: 110, opacity: 0, duration: reduced ? 0.01 : 1.1, ease: 'power3.out', stagger: 0.045, delay: 0.2 })
+      gsap.from('.cover-reveal', { y: 18, opacity: 0, duration: reduced ? 0.01 : 0.9, ease: 'power2.out', stagger: 0.12, delay: 1 })
+    }, rootRef)
+    return () => ctx.revert()
+  }, [])
+
   // ———————————————————————————————— coreografia de scroll (GSAP ScrollTrigger)
   useEffect(() => {
     if (!realm || !rootRef.current) return
@@ -124,9 +138,6 @@ export function Portfolio() {
       introPlayed.current = true
       if (intro) intro.eventCallback('onComplete', () => (introDone = true))
       else introDone = true
-      const title = new SplitText('.cover-title', { type: 'words,chars' })
-      gsap.from(title.chars, { yPercent: 110, opacity: 0, duration: reduced ? 0.01 : 1.1, ease: 'power3.out', stagger: 0.045, delay: 0.5 })
-      gsap.from('.cover-reveal', { y: 18, opacity: 0, duration: reduced ? 0.01 : 0.9, ease: 'power2.out', stagger: 0.12, delay: 1.3 })
 
       const setJourney = (v: number) => {
         journeyRef.current = v
@@ -264,8 +275,8 @@ export function Portfolio() {
       </div>
 
       <header className="site-header">
-        <a href="#capa" onClick={go('capa')} className="wordmark" aria-label="Jorge Mesquita — capa">
-          J<span>·</span>M
+        <a href="#capa" onClick={go('capa')} className="wordmark">
+          J<span aria-hidden="true">·</span>M<span className="sr-only"> — Jorge Mesquita, capa</span>
         </a>
         <nav className={menuOpen ? 'nav-links is-open' : 'nav-links'} aria-label="Seções">
           {houses.map((h, i) => (
@@ -282,7 +293,7 @@ export function Portfolio() {
           <span className="built-count" aria-live="polite">
             {builtCount}/{houses.length}
           </span>
-          <button className={`sound-toggle ${soundOn ? 'is-on' : ''}`} type="button" onClick={toggleSound} aria-pressed={soundOn} aria-label={copy.sound.label}>
+          <button className={`sound-toggle ${soundOn ? 'is-on' : ''}`} type="button" onClick={toggleSound} aria-pressed={soundOn} title={copy.sound.label}>
             <span aria-hidden="true">{soundOn ? '♪ ▂▅▇' : '♪ ▁▁▁'}</span> {soundOn ? copy.sound.on : copy.sound.off}
           </button>
           <SoundMixer audio={audio} copy={copy.sound} />

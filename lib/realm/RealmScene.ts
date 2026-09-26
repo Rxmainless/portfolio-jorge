@@ -43,6 +43,14 @@ function houseToConfig(h: House): SkillCityConfig {
  * câmera e construção são funções da posição de scroll (GSAP ScrollTrigger),
  * então rolar para cima desmonta — a animação é reversível e determinística.
  */
+/** SwiftShader, llvmpipe e afins: WebGL emulado na CPU. */
+function isSoftwareRenderer(renderer: THREE.WebGLRenderer): boolean {
+  const gl = renderer.getContext()
+  const info = gl.getExtension('WEBGL_debug_renderer_info')
+  const name = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER))
+  return /swiftshader|llvmpipe|softpipe|software|basic render/i.test(name)
+}
+
 export class RealmScene {
   readonly renderer: THREE.WebGLRenderer
   readonly scene = new THREE.Scene()
@@ -87,8 +95,11 @@ export class RealmScene {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', stencil: true })
     const coarse = window.matchMedia('(pointer: coarse)').matches
     this.pixelRatio = Math.min(window.devicePixelRatio, opts.mode === 'preview' || coarse ? 1.5 : 1.75)
+    // Sem GPU (renderização por software): começa na qualidade mínima
+    const software = isSoftwareRenderer(this.renderer)
+    if (software) this.pixelRatio = 0.75
     this.renderer.setPixelRatio(this.pixelRatio)
-    this.renderer.shadowMap.enabled = true
+    this.renderer.shadowMap.enabled = !software
     this.renderer.shadowMap.type = THREE.PCFShadowMap
     this.renderer.shadowMap.autoUpdate = false
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
@@ -342,7 +353,10 @@ export class RealmScene {
       this.shaftLight.intensity = a.state.shaftLight * 30
     } else this.shaftLight.intensity = 0
 
-    if (a || this.frameCount % 4 === 0) this.renderer.shadowMap.needsUpdate = true
+    // Parado (sem obra, câmera assentada, ponteiro quieto): desenha a 30 fps
+    const settled = !a && this.current.position.distanceToSquared(this.desired.position) < 1e-3 && this.pointerSmooth.distanceToSquared(this.pointer) < 1e-5
+    if (settled && this.opts.mode === 'journey' && this.frameCount % 2 === 1) return
+    if (a || this.frameCount % (settled ? 12 : 4) === 0) this.renderer.shadowMap.needsUpdate = true
     const dist = this.camera.position.distanceTo(this.current.target)
     ;(this.scene.fog as THREE.FogExp2).density = 0.62 / Math.max(dist, 10)
     this.renderer.render(this.scene, this.camera)

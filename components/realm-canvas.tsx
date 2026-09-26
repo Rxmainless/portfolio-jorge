@@ -23,7 +23,10 @@ export function RealmCanvas({ options, onReady, onError, className, label }: Pro
   useEffect(() => {
     let scene: RealmScene | null = null
     let cancelled = false
-    import('@/lib/realm/RealmScene')
+    // O 3D carrega depois da primeira pintura: o texto aparece antes do mapa
+    const idle = () => new Promise<void>((r) => ('requestIdleCallback' in window ? window.requestIdleCallback(() => r(), { timeout: 1200 }) : setTimeout(r, 200)))
+    idle()
+      .then(() => import('@/lib/realm/RealmScene'))
       .then(({ RealmScene }) => {
         if (cancelled || !ref.current) return
         if (!hasWebGL()) throw new Error('WebGL indisponível')
