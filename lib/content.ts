@@ -202,11 +202,11 @@ export const copy = {
     cursos: {
       title: 'Cursos',
       lead: 'Cada curso concluído vira um elo da corrente de meistre.',
-      // Informados por Jorge. Detalhes (idioma, linguagens, nome exato do curso Cisco) a completar.
+      // Informados por Jorge (certificado Cisco: "Statement of Achievement", emitido em 21/09/2026).
       items: [
-        { name: 'Cibersegurança', provider: 'Cisco', metal: 'aço' },
+        { name: 'Digital Safety and Security Awareness', provider: 'Cisco Networking Academy · OpenEDG · set. 2026', metal: 'aço' },
         { name: 'Idiomas', provider: 'Duolingo · inglês, espanhol, francês, italiano, chinês, russo', metal: 'prata' },
-        { name: 'Linguagens de programação', provider: 'Cursos de linguagens', metal: 'ferro' },
+        { name: 'Linguagens e frameworks', provider: 'Autodidata · The Odin Project e cursos online · tudo o que está em Habilidades', metal: 'ferro' },
       ],
       metalLabel: 'elo de',
       empty: 'Próximo elo',
@@ -232,6 +232,7 @@ export const copy = {
     },
     epilogue: { title: 'O reino está de pé', body: 'Seis casas, uma máquina. As habilidades não são uma lista: elas formam um sistema.', top: 'Voltar à capa', footer: 'Jorge Mesquita © 2026 · Homenagem inspirada em Game of Thrones — arte e código originais.' },
     moodboard: 'Moodboard',
+    sound: { on: 'Som', off: 'Som', label: 'Ligar ou desligar os sons da máquina', invite: '♪ Ative o som para ouvir a máquina' },
     language: 'Idioma',
     menu: 'Abrir menu',
     close: 'Fechar menu',
@@ -271,9 +272,9 @@ export const copy = {
       title: 'Courses',
       lead: "Every finished course becomes a link in the maester's chain.",
       items: [
-        { name: 'Cybersecurity', provider: 'Cisco', metal: 'steel' },
+        { name: 'Digital Safety and Security Awareness', provider: 'Cisco Networking Academy · OpenEDG · Sep 2026', metal: 'steel' },
         { name: 'Languages', provider: 'Duolingo · English, Spanish, French, Italian, Chinese, Russian', metal: 'silver' },
-        { name: 'Programming languages', provider: 'Programming courses', metal: 'iron' },
+        { name: 'Languages & frameworks', provider: 'Self-taught · The Odin Project and online courses · everything in Skills', metal: 'iron' },
       ],
       metalLabel: 'link of',
       empty: 'Next link',
@@ -289,6 +290,7 @@ export const copy = {
     contato: { title: 'Contact', lead: 'Send a raven. Reach me here:', github: 'GitHub', linkedin: 'LinkedIn', email: 'E-mail' },
     epilogue: { title: 'The realm stands', body: 'Six houses, one machine. Skills are not a list: they form a system.', top: 'Back to cover', footer: 'Jorge Mesquita © 2026 · Tribute inspired by Game of Thrones — original art and code.' },
     moodboard: 'Moodboard',
+    sound: { on: 'Sound', off: 'Sound', label: 'Toggle machine sounds', invite: '♪ Turn on sound to hear the machine' },
     language: 'Language',
     menu: 'Open menu',
     close: 'Close menu',
