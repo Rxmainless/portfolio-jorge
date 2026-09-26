@@ -20,19 +20,28 @@ const SOUNDS: [string, string, string][] = [
 
 /** Toca cada efeito isolado (o contexto de áudio nasce no clique). */
 function SoundBoard() {
-  /** Tema do Reino: um compasso por camada, somando até a orquestra completa. */
+  /** Tema do Reino: a forma inteira (16 compassos), uma camada nova a cada 2 compassos. Clicar de novo para. */
   const playScore = async () => {
-    const w = window as unknown as { __mbAudio?: AudioContext }
+    const w = window as unknown as { __mbAudio?: AudioContext; __mbScore?: GainNode }
     const ctx = (w.__mbAudio ??= new AudioContext())
     await ctx.resume()
-    const { scheduleBar, LAYERS, BAR } = await import('@/lib/realm/audio/score')
+    if (w.__mbScore) {
+      const old = w.__mbScore
+      w.__mbScore = undefined
+      old.gain.setTargetAtTime(0, ctx.currentTime, 0.15)
+      window.setTimeout(() => old.disconnect(), 800)
+      return
+    }
+    const { scheduleBar, LAYERS, BAR, FORM } = await import('@/lib/realm/audio/score')
     const bus = ctx.createGain()
     bus.gain.value = 0.7
     bus.connect(ctx.destination)
+    w.__mbScore = bus
+    window.setTimeout(() => { if (w.__mbScore === bus) w.__mbScore = undefined }, (FORM * BAR + 3) * 1000)
     const outs = Object.fromEntries(LAYERS.map((l) => [l, bus as AudioNode])) as unknown as Record<(typeof LAYERS)[number], AudioNode>
     const t0 = ctx.currentTime + 0.1
-    LAYERS.forEach((_, bar) => {
-      const active = Object.fromEntries(LAYERS.map((l, i) => [l, i <= bar])) as unknown as Record<(typeof LAYERS)[number], boolean>
+    Array.from({ length: FORM }, (_, bar) => {
+      const active = Object.fromEntries(LAYERS.map((l, i) => [l, i * 2 <= bar])) as unknown as Record<(typeof LAYERS)[number], boolean>
       scheduleBar(ctx, outs, bar, t0 + bar * BAR, active)
     })
   }
@@ -51,7 +60,7 @@ function SoundBoard() {
       <button type="button" className="mb-sound mb-score" onClick={playScore}>
         <span className="n">♪</span>
         <strong>Tema do Reino</strong>
-        <small>trilha original · ré menor · uma camada por casa (≈ 23 s)</small>
+        <small>trilha original · ré menor · 3/4 · cordas, tambores e trompas · uma camada por casa (≈ 34 s)</small>
         <span className="play" aria-hidden="true">▶</span>
       </button>
       {SOUNDS.map(([id, name, desc], i) => (

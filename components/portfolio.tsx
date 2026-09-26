@@ -12,6 +12,7 @@ import type { RealmScene } from '@/lib/realm/RealmScene'
 import { RealmAudio } from '@/lib/realm/audio/RealmAudio'
 import { AsciiSigil } from './ascii-sigil'
 import { RealmCanvas } from './realm-canvas'
+import { SoundMixer } from './sound-mixer'
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, SplitText)
 
@@ -33,6 +34,7 @@ export function Portfolio() {
   const introPlayed = useRef(false)
   const audioRef = useRef<RealmAudio | null>(null)
   const [soundOn, setSoundOn] = useState(false)
+  const [audio, setAudio] = useState<RealmAudio | null>(null)
 
   useEffect(() => {
     const saved = window.localStorage.getItem('jorge-locale')
@@ -43,6 +45,7 @@ export function Portfolio() {
   useEffect(() => {
     const audio = new RealmAudio()
     audioRef.current = audio
+    setAudio(audio)
     if (process.env.NODE_ENV !== 'production') {
       Object.assign(window, { __audio: audio })
       import('@/lib/realm/audio/sfx').then((m) => Object.assign(window, { __sfx: m })) // validação offline
@@ -275,6 +278,7 @@ export function Portfolio() {
           <button className={`sound-toggle ${soundOn ? 'is-on' : ''}`} type="button" onClick={toggleSound} aria-pressed={soundOn} aria-label={copy.sound.label}>
             <span aria-hidden="true">{soundOn ? '♪ ▂▅▇' : '♪ ▁▁▁'}</span> {soundOn ? copy.sound.on : copy.sound.off}
           </button>
+          <SoundMixer audio={audio} copy={copy.sound} />
           <button className="language-toggle" type="button" onClick={() => setLocale(locale === 'pt-BR' ? 'en' : 'pt-BR')} aria-label={`${copy.language}: ${locale}`}>
             {locale === 'pt-BR' ? 'PT' : 'EN'} <span>↔</span>
           </button>

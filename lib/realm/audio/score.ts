@@ -1,101 +1,229 @@
 /**
  * Trilha adaptativa original — "Tema do Reino".
- * Ré menor, 72 bpm, 4/4, progressão Dm – B♭ – Gm – A (i – VI – iv – V).
- * Composição própria e sintetizada; cada camada entra quando a cidade da sua
- * casa é construída, então o reino completo soa como a orquestra completa.
+ * Ré menor, 84 bpm, 3/4, forma de 16 compassos:
+ *   A: Dm Dm B♭ C | Dm Dm Gm A     B: F C Dm B♭ | Gm Dm E♭ A
+ * Linguagem de abertura de série épica: ostinato galopante de violoncelos,
+ * violinos em trêmulo, tambores de guerra, trompas graves, coro e um violino
+ * solo dobrado pelos violoncelos. Composição própria (melodia e ostinato
+ * originais) e sintetizada; cada camada entra quando a cidade da sua casa é
+ * construída, então o reino completo soa como a orquestra completa.
  *
  * `scheduleBar` é uma função pura sobre qualquer BaseAudioContext, para poder
  * ser renderizada offline na validação.
  */
 import { noiseBuffer, type Ctx } from './sfx'
 
-export const BPM = 72
+export const BPM = 84
 export const BEAT = 60 / BPM
-export const BAR = BEAT * 4
-export const LAYERS = ['drone', 'cello', 'drums', 'harp', 'brass', 'choir', 'solo'] as const
+export const BEATS_PER_BAR = 3
+export const BAR = BEAT * BEATS_PER_BAR
+export const FORM = 16
+export const LAYERS = ['drone', 'cello', 'drums', 'violins', 'brass', 'choir', 'solo'] as const
 export type Layer = (typeof LAYERS)[number]
 
 const midi = (n: number) => 440 * Math.pow(2, (n - 69) / 12)
 
-/** Acordes (MIDI): fundamental grave + tríade. */
-const CHORDS: { root: number; triad: number[] }[] = [
-  { root: 38, triad: [62, 65, 69] }, // Dm
-  { root: 34, triad: [58, 62, 65] }, // B♭
-  { root: 31, triad: [55, 58, 62] }, // Gm
-  { root: 33, triad: [57, 61, 64] }, // A (dominante maior, sabor harmônico)
+type Chord = { root: number; triad: number[] }
+const Dm: Chord = { root: 38, triad: [62, 65, 69] }
+const Bb: Chord = { root: 34, triad: [58, 62, 65] }
+const C: Chord = { root: 36, triad: [60, 64, 67] }
+const Gm: Chord = { root: 43, triad: [55, 58, 62] }
+const A: Chord = { root: 33, triad: [57, 61, 64] }
+const F: Chord = { root: 41, triad: [60, 65, 69] }
+const Eb: Chord = { root: 39, triad: [58, 63, 67] }
+const CHORDS: Chord[] = [Dm, Dm, Bb, C, Dm, Dm, Gm, A, F, C, Dm, Bb, Gm, Dm, Eb, A]
+
+/** Melodia do violino solo: [nota MIDI, duração em tempos] por compasso (0 = pausa). */
+const MELODY: [number, number][][] = [
+  [[74, 1.5], [76, 0.5], [77, 1]],
+  [[81, 2], [79, 0.5], [77, 0.5]],
+  [[77, 1.5], [76, 0.5], [74, 1]],
+  [[76, 3]],
+  [[74, 1.5], [76, 0.5], [77, 1]],
+  [[84, 2], [81, 0.5], [82, 0.5]],
+  [[81, 1], [79, 1], [82, 1]],
+  [[81, 3]],
+  [[84, 1.5], [81, 0.5], [77, 1]],
+  [[79, 1.5], [76, 0.5], [72, 1]],
+  [[74, 1], [77, 1], [81, 1]],
+  [[86, 2], [84, 0.5], [82, 0.5]],
+  [[82, 1.5], [81, 0.5], [79, 1]],
+  [[81, 1.5], [77, 0.5], [74, 1]],
+  [[79, 1], [82, 1], [87, 1]],
+  [[85, 2], [0, 1]],
 ]
 
-/** Ostinato de violoncelo em colcheias (graus relativos à fundamental + oitava). */
-const CELLO = [0, 12, 7, 12, 0, 12, 10, 7]
-/** Harpa: arpejo em semicolcheias sobre a tríade (índices 0-2, +3 = oitava acima). */
-const HARP = [0, 1, 2, 4, 2, 1, 0, 1, 2, 4, 5, 4, 2, 1, 0, 2]
-/** Tambores: 1 = grave, 2 = médio, 0 = pausa (semicolcheias). */
-const DRUMS = [1, 0, 0, 0, 2, 0, 1, 0, 1, 0, 0, 2, 2, 0, 1, 1]
-/** Melodia solo (8 compassos, MIDI por semínima; 0 = pausa). */
-const SOLO = [
-  [74, 0, 72, 74],
-  [77, 0, 0, 76],
-  [74, 0, 70, 72],
-  [73, 0, 0, 0],
-  [69, 72, 74, 0],
-  [77, 76, 74, 72],
-  [74, 0, 0, 70],
-  [69, 0, 0, 0],
-]
+/** Mixagem por camada, medida em render offline (RMS de cada camada isolada). */
+const MIX: Record<Layer, number> = { drone: 0.35, cello: 0.6, drums: 0.32, violins: 1.25, brass: 0.55, choir: 0.85, solo: 0.6 }
 
-function voice(ctx: Ctx, type: OscillatorType, freq: number, t: number, dur: number, detune = 0): OscillatorNode {
+/** Tambores em semicolcheias (12 por compasso): 1 taiko grave, 2 tambor médio, 3 caixa de moldura. */
+const DRUMS = [1, 0, 0, 3, 2, 0, 1, 0, 2, 0, 3, 3]
+
+// ————————————————————————————————————————————— instrumentos
+
+function osc(ctx: Ctx, type: OscillatorType, freq: number, t: number, end: number, detune = 0): OscillatorNode {
   const o = ctx.createOscillator()
   o.type = type
   o.frequency.setValueAtTime(freq, t)
   o.detune.value = detune
   o.start(t)
-  o.stop(t + dur + 0.1)
+  o.stop(end)
   return o
 }
 
-function adsr(ctx: Ctx, t: number, a: number, hold: number, r: number, peak: number): GainNode {
+function env(ctx: Ctx, t: number, a: number, hold: number, r: number, peak: number): GainNode {
   const g = ctx.createGain()
   g.gain.setValueAtTime(0.0001, t)
   g.gain.linearRampToValueAtTime(peak, t + a)
-  g.gain.setValueAtTime(peak, t + a + hold)
-  g.gain.exponentialRampToValueAtTime(0.0001, t + a + hold + r)
+  g.gain.setValueAtTime(peak, t + a + Math.max(0, hold))
+  g.gain.exponentialRampToValueAtTime(0.0001, t + a + Math.max(0, hold) + r)
   return g
 }
 
-function lp(ctx: Ctx, f: number, q = 0.7): BiquadFilterNode {
+function filter(ctx: Ctx, type: BiquadFilterType, f: number, q = 0.7, gain = 0): BiquadFilterNode {
   const b = ctx.createBiquadFilter()
-  b.type = 'lowpass'
+  b.type = type
   b.frequency.value = f
   b.Q.value = q
+  b.gain.value = gain
   return b
+}
+
+type Bow = {
+  peak: number
+  /** Ataque, sustentação e soltura (s). */
+  attack: number
+  release: number
+  /** Brilho: corte do filtro passa-baixa depois do ataque (Hz). */
+  bright: number
+  /** Vozes do naipe (serras desafinadas entre si). */
+  voices?: number
+  spread?: number
+  /** Profundidade do vibrato (fração da frequência). */
+  vibrato?: number
+  /** Trêmulo de arco (Hz); 0 = arcada contínua. */
+  tremolo?: number
+  /** Ruído de crina no ataque. */
+  scratch?: number
+}
+
+/**
+ * Corda friccionada: naipe de serras desafinadas com vibrato que entra depois
+ * do ataque, passa-baixa duplo com envelope de brilho, ressonância de caixa
+ * (≈ 280 Hz e ≈ 2,8 kHz) e ruído de crina no início da arcada.
+ */
+function bowed(ctx: Ctx, out: AudioNode, note: number, t: number, dur: number, o: Bow): void {
+  const f = midi(note)
+  const n = o.voices ?? 3
+  const spread = o.spread ?? 12
+  const end = t + dur + o.release + 0.2
+  const lp1 = filter(ctx, 'lowpass', o.bright, 0.5)
+  const lp2 = filter(ctx, 'lowpass', o.bright * 1.4, 0.6)
+  lp1.frequency.setValueAtTime(o.bright * 0.45, t)
+  lp1.frequency.linearRampToValueAtTime(o.bright, t + o.attack)
+  lp1.frequency.setTargetAtTime(o.bright * 0.78, t + o.attack, dur * 0.5 + 0.05)
+  const body = filter(ctx, 'peaking', 280, 1.2, 3)
+  const bite = filter(ctx, 'peaking', 2800, 1.4, 2.5)
+
+  const vib = osc(ctx, 'sine', 5.1 + ((note * 7) % 5) * 0.12, t, end)
+  const depth = ctx.createGain()
+  depth.gain.setValueAtTime(0, t)
+  depth.gain.linearRampToValueAtTime(0, t + Math.min(0.28, dur * 0.4))
+  depth.gain.linearRampToValueAtTime(f * (o.vibrato ?? 0.004), t + Math.min(0.28, dur * 0.4) + 0.35)
+  vib.connect(depth)
+  for (let i = 0; i < n; i++) {
+    const det = n === 1 ? 0 : spread * ((i / (n - 1)) * 2 - 1) + ((note * 13 + i * 5) % 7) - 3
+    const v = osc(ctx, 'sawtooth', f, t, end, det)
+    depth.connect(v.frequency)
+    v.connect(lp1)
+  }
+  let chain: AudioNode = lp1.connect(lp2).connect(body).connect(bite)
+  if (o.tremolo) {
+    const am = ctx.createGain()
+    am.gain.value = 0.55
+    const lfo = osc(ctx, 'triangle', o.tremolo, t, end)
+    const lg = ctx.createGain()
+    lg.gain.value = 0.45
+    lfo.connect(lg).connect(am.gain)
+    chain = chain.connect(am)
+  }
+  chain.connect(env(ctx, t, o.attack, dur - o.attack, o.release, o.peak / Math.sqrt(n))).connect(out)
+
+  if (o.scratch) {
+    const s = ctx.createBufferSource()
+    s.buffer = noiseBuffer(ctx)
+    s.start(t, (note * 0.071) % 1.5)
+    s.stop(t + 0.12)
+    s.connect(filter(ctx, 'bandpass', Math.min(6000, f * 3), 1.4)).connect(env(ctx, t, 0.005, 0.02, 0.07, o.peak * o.scratch)).connect(out)
+  }
+}
+
+/** Tambor: senoide com queda de altura + ruído de pele. */
+function drum(ctx: Ctx, out: AudioNode, t: number, from: number, to: number, decay: number, peak: number, skin: number, skinHz: number): void {
+  const o = osc(ctx, 'sine', from, t, t + decay + 0.1)
+  o.frequency.exponentialRampToValueAtTime(to, t + decay * 0.45)
+  o.connect(env(ctx, t, 0.003, 0.015, decay, peak)).connect(out)
+  const n = ctx.createBufferSource()
+  n.buffer = noiseBuffer(ctx)
+  n.start(t, (from * 0.013) % 1.5)
+  n.stop(t + 0.25)
+  n.connect(filter(ctx, 'lowpass', skinHz, 0.8)).connect(env(ctx, t, 0.002, 0.01, 0.14, skin)).connect(out)
+}
+
+/** Tímpano afinado na fundamental do acorde. */
+function timpani(ctx: Ctx, out: AudioNode, t: number, note: number, peak: number): void {
+  let n = note
+  while (n < 38) n += 12
+  while (n > 50) n -= 12
+  const f = midi(n)
+  for (const [m, a, d] of [[1, 1, 1.4], [1.5, 0.35, 0.8], [1.99, 0.18, 0.5]] as const) {
+    const o = osc(ctx, 'sine', f * m * 1.04, t, t + d + 0.1)
+    o.frequency.exponentialRampToValueAtTime(f * m, t + 0.08)
+    o.connect(env(ctx, t, 0.004, 0.02, d, peak * a)).connect(out)
+  }
+  const s = ctx.createBufferSource()
+  s.buffer = noiseBuffer(ctx)
+  s.start(t, 0.3)
+  s.stop(t + 0.1)
+  s.connect(filter(ctx, 'bandpass', 420, 1)).connect(env(ctx, t, 0.002, 0.005, 0.06, peak * 0.3)).connect(out)
 }
 
 /**
  * Agenda um compasso (índice `bar`) a partir de `t`. `out` recebe um destino por
  * camada, já com o volume da camada aplicado pelo chamador.
  */
-export function scheduleBar(ctx: Ctx, out: Record<Layer, AudioNode>, bar: number, t: number, active: Record<Layer, boolean>): void {
-  const chord = CHORDS[bar % 4]
+export function scheduleBar(ctx: Ctx, dest: Record<Layer, AudioNode>, bar: number, t: number, active: Record<Layer, boolean>): void {
+  const out = {} as Record<Layer, AudioNode>
+  for (const l of LAYERS) {
+    if (!active[l]) continue
+    const g = ctx.createGain()
+    g.gain.value = MIX[l]
+    g.connect(dest[l])
+    out[l] = g
+  }
+  const b = bar % FORM
+  const chord = CHORDS[b]
   const s8 = BEAT / 2
   const s16 = BEAT / 4
+  const cadence = b % 8 === 7
 
   if (active.drone) {
-    // Pedal: fundamental + quinta, cordas graves filtradas, respirando
-    for (const [n, a] of [[chord.root, 0.16], [chord.root + 7, 0.07], [chord.root + 12, 0.05]] as const) {
-      const f = lp(ctx, 380)
-      for (const det of [-7, 6]) voice(ctx, 'sawtooth', midi(n), t, BAR, det).connect(f)
-      f.connect(adsr(ctx, t, 0.9, BAR - 1.2, 0.9, a)).connect(out.drone)
+    // Contrabaixos e violoncelos graves sustentando fundamental e quinta; sub por baixo
+    for (const [n, a] of [[chord.root, 0.2], [chord.root + 7, 0.07], [chord.root + 12, 0.06]] as const) {
+      bowed(ctx, out.drone, n, t, BAR, { peak: a, attack: 0.7, release: 0.9, bright: 520, voices: 2, spread: 9, vibrato: 0.002 })
     }
+    osc(ctx, 'sine', midi(chord.root - 12 < 26 ? chord.root : chord.root - 12), t, t + BAR + 1).connect(env(ctx, t, 0.6, BAR - 0.6, 0.8, 0.09)).connect(out.drone)
   }
 
   if (active.cello) {
-    CELLO.forEach((deg, i) => {
+    // Ostinato galopante em colcheias, acentos no 1 e no "e" do 2 (sensação de 6/8)
+    const base = chord.root + 12
+    const third = chord.triad[1] - chord.triad[0] === 3 ? 3 : 4
+    const pattern = [0, 7, 12, 7, 12 + third, 7]
+    pattern.forEach((deg, i) => {
       const at = t + i * s8
-      const f = lp(ctx, 900, 2)
-      f.frequency.setValueAtTime(1500, at)
-      f.frequency.exponentialRampToValueAtTime(420, at + s8 * 1.6)
-      voice(ctx, 'sawtooth', midi(chord.root + 12 + deg), at, s8 * 1.7).connect(f)
-      f.connect(adsr(ctx, at, 0.012, s8 * 0.6, s8 * 1.1, 0.13)).connect(out.cello)
+      const accent = i === 0 ? 1 : i === 3 ? 0.85 : 0.55
+      bowed(ctx, out.cello, base + deg, at, s8 * 0.72, { peak: 0.2 * accent, attack: 0.018, release: 0.14, bright: 1500 + accent * 1100, voices: 3, spread: 10, vibrato: 0.0015, scratch: 0.5 })
     })
   }
 
@@ -103,84 +231,80 @@ export function scheduleBar(ctx: Ctx, out: Record<Layer, AudioNode>, bar: number
     DRUMS.forEach((hit, i) => {
       if (!hit) return
       const at = t + i * s16
-      const big = hit === 1
-      const o = voice(ctx, 'sine', big ? 70 : 115, at, 0.5)
-      o.frequency.exponentialRampToValueAtTime(big ? 38 : 70, at + 0.25)
-      o.connect(adsr(ctx, at, 0.003, 0.02, big ? 0.55 : 0.28, big ? 0.4 : 0.22)).connect(out.drums)
-      const n = ctx.createBufferSource()
-      n.buffer = noiseBuffer(ctx)
-      n.start(at, (i * 0.137) % 1.5)
-      n.stop(at + 0.2)
-      n.connect(lp(ctx, big ? 700 : 1600)).connect(adsr(ctx, at, 0.002, 0.01, 0.12, big ? 0.16 : 0.1)).connect(out.drums)
+      if (hit === 1) drum(ctx, out.drums, at, 78, 40, 0.6, 0.42, 0.18, 600)
+      else if (hit === 2) drum(ctx, out.drums, at, 130, 82, 0.32, 0.2, 0.12, 1400)
+      else drum(ctx, out.drums, at, 260, 190, 0.1, 0.06, 0.12, 3800)
     })
+    timpani(ctx, out.drums, t, chord.root, 0.26)
+    if (b % 4 === 3) {
+      // Rufo de tímpano crescendo no último tempo, puxando a próxima frase
+      for (let k = 0; k < 10; k++) timpani(ctx, out.drums, t + BEAT * 2 + k * (BEAT / 10), CHORDS[(b + 1) % FORM].root, 0.05 + k * 0.022)
+    }
+    if (b % 8 === 0) {
+      // Baque de guerra no início de cada frase
+      const o = osc(ctx, 'sine', 55, t, t + 2)
+      o.frequency.exponentialRampToValueAtTime(28, t + 1.2)
+      o.connect(env(ctx, t, 0.004, 0.05, 1.5, 0.34)).connect(out.drums)
+    }
   }
 
-  if (active.harp) {
-    const notes = [...chord.triad, ...chord.triad.map((n) => n + 12)]
-    HARP.forEach((idx, i) => {
-      const at = t + i * s16
-      const f = midi(notes[idx % notes.length])
-      voice(ctx, 'triangle', f, at, 1.2).connect(adsr(ctx, at, 0.004, 0.02, 1.0, 0.1)).connect(out.harp)
-      voice(ctx, 'sine', f * 2, at, 0.6).connect(adsr(ctx, at, 0.002, 0.01, 0.4, 0.018)).connect(out.harp)
-    })
+  if (active.violins) {
+    // Violinos em trêmulo que incham ao longo do compasso — tensão sombria
+    for (const n of chord.triad) {
+      bowed(ctx, out.violins, n + 12, t, BAR * 0.96, { peak: 0.06, attack: BAR * 0.62, release: 0.45, bright: 4200, voices: 3, spread: 14, vibrato: 0.003, tremolo: 13 })
+    }
+    // Segundos violinos: pulsos em spiccato nas colcheias, oitava acima do ostinato
+    for (let i = 0; i < 6; i++) {
+      const at = t + i * s8
+      const n = chord.triad[i % 3 === 0 ? 0 : i % 3 === 1 ? 1 : 2]
+      bowed(ctx, out.violins, n, at, s8 * 0.35, { peak: i % 3 === 0 ? 0.05 : 0.032, attack: 0.012, release: 0.09, bright: 3400, voices: 2, spread: 8, vibrato: 0, scratch: 0.4 })
+    }
   }
 
   if (active.brass) {
-    // Metais: acordes que incham em mínimas
-    for (let half = 0; half < 2; half++) {
-      const at = t + half * BEAT * 2
-      const f = lp(ctx, 500, 1.2)
-      f.frequency.setValueAtTime(400, at)
-      f.frequency.linearRampToValueAtTime(1500, at + BEAT * 1.2)
-      f.frequency.linearRampToValueAtTime(700, at + BEAT * 2)
-      for (const n of chord.triad) for (const det of [-5, 5]) voice(ctx, 'sawtooth', midi(n - 12), at, BEAT * 2.2, det).connect(f)
-      f.connect(adsr(ctx, at, BEAT * 0.8, BEAT * 0.7, BEAT * 0.6, 0.045)).connect(out.brass)
+    // Trompas graves: acorde fechado que cresce no compasso; nas cadências, trombones pesados
+    for (const n of chord.triad) {
+      const lp = filter(ctx, 'lowpass', 400, 1.3)
+      lp.frequency.setValueAtTime(320, t)
+      lp.frequency.linearRampToValueAtTime(1500, t + BAR * 0.55)
+      lp.frequency.linearRampToValueAtTime(650, t + BAR)
+      for (const [type, det] of [['sawtooth', -6], ['sawtooth', 6], ['square', 0]] as const) osc(ctx, type, midi(n - 12), t, t + BAR + 1, det).connect(lp)
+      lp.connect(env(ctx, t, BAR * 0.45, BAR * 0.3, BAR * 0.35, 0.04)).connect(out.brass)
+    }
+    if (cadence) {
+      const lp = filter(ctx, 'lowpass', 900, 1)
+      for (const n of [chord.root + 12, chord.root + 19]) for (const det of [-4, 4]) osc(ctx, 'sawtooth', midi(n), t, t + BAR + 1, det).connect(lp)
+      lp.connect(env(ctx, t, 0.06, BAR * 0.6, 0.6, 0.07)).connect(out.brass)
     }
   }
 
   if (active.choir) {
-    // Coro "ah": serras desafinadas por formantes vocálicos
+    // Coro "ah" grave: serras desafinadas por formantes vocálicos
     for (const n of chord.triad) {
       const mix = ctx.createGain()
-      mix.gain.value = 1
-      for (const det of [-9, 0, 8]) voice(ctx, 'sawtooth', midi(n), t, BAR, det).connect(mix)
-      for (const [fq, g] of [[750, 1], [1150, 0.6], [2600, 0.18]] as const) {
-        const bp = ctx.createBiquadFilter()
-        bp.type = 'bandpass'
-        bp.frequency.value = fq
-        bp.Q.value = 7
+      for (const det of [-9, 0, 8]) osc(ctx, 'sawtooth', midi(n - 12), t, t + BAR + 1.2, det).connect(mix)
+      for (const [fq, g] of [[650, 1], [1080, 0.55], [2650, 0.16]] as const) {
         const fg = ctx.createGain()
         fg.gain.value = g
-        mix.connect(bp).connect(fg).connect(adsr(ctx, t, 1.1, BAR - 1.6, 1.0, 0.11)).connect(out.choir)
+        mix.connect(filter(ctx, 'bandpass', fq, 7)).connect(fg).connect(env(ctx, t, 0.9, BAR - 1.2, 1.0, 0.13)).connect(out.choir)
       }
     }
   }
 
   if (active.solo) {
-    SOLO[bar % 8].forEach((n, i) => {
-      if (!n) return
-      const at = t + i * BEAT
-      // Duração: até a próxima nota (pausas prolongam)
-      let len = 1
-      const row = SOLO[bar % 8]
-      while (i + len < 4 && !row[i + len]) len++
-      const dur = len * BEAT
-      const o = voice(ctx, 'sine', midi(n), at, dur)
-      const vib = voice(ctx, 'sine', 5.2, at, dur)
-      const depth = ctx.createGain()
-      depth.gain.setValueAtTime(0, at)
-      depth.gain.linearRampToValueAtTime(midi(n) * 0.012, at + dur * 0.6)
-      vib.connect(depth).connect(o.frequency)
-      const h = voice(ctx, 'triangle', midi(n) * 2, at, dur)
-      const g = adsr(ctx, at, 0.09, dur * 0.55, dur * 0.4, 0.1)
-      o.connect(g)
-      h.connect(adsr(ctx, at, 0.09, dur * 0.5, dur * 0.4, 0.012)).connect(g)
-      g.connect(out.solo)
-    })
-    // Sino no primeiro tempo a cada 2 compassos
-    if (bar % 2 === 0) {
-      const at = t
-      for (const [m, a, d] of [[1, 0.05, 2.4], [2.76, 0.025, 1.5], [5.4, 0.012, 0.8]] as const) voice(ctx, 'sine', midi(chord.root + 36) * m, at, d).connect(adsr(ctx, at, 0.003, 0.01, d, a)).connect(out.solo)
+    // Violino solo (lírico, vibrato largo) dobrado duas oitavas abaixo pelos violoncelos
+    let at = t
+    for (const [n, beats] of MELODY[b]) {
+      const dur = beats * BEAT
+      if (n) {
+        bowed(ctx, out.solo, n, at, dur * 0.97, { peak: 0.11, attack: 0.07, release: 0.35, bright: 5200, voices: 2, spread: 5, vibrato: 0.0065, scratch: 0.25 })
+        bowed(ctx, out.solo, n - 24, at, dur * 0.97, { peak: 0.1, attack: 0.05, release: 0.3, bright: 1900, voices: 3, spread: 9, vibrato: 0.004, scratch: 0.3 })
+      }
+      at += dur
+    }
+    // Sino grave a cada frase de 4 compassos
+    if (b % 4 === 0) {
+      for (const [m, a, d] of [[1, 0.05, 3], [2.76, 0.022, 1.8], [5.4, 0.01, 0.9]] as const) osc(ctx, 'sine', midi(chord.root + 24) * m, t, t + d + 0.1).connect(env(ctx, t, 0.003, 0.01, d, a)).connect(out.solo)
     }
   }
 }
@@ -191,6 +315,8 @@ export function scheduleBar(ctx: Ctx, out: Record<Layer, AudioNode>, bar: number
  */
 export class AdaptiveScore {
   readonly bus: GainNode
+  /** Volume da trilha escolhido pelo usuário (depois do ducking). */
+  private readonly level: GainNode
   private readonly layerGain = {} as Record<Layer, GainNode>
   private readonly levels = {} as Record<Layer, number>
   private timer: number | null = null
@@ -200,10 +326,11 @@ export class AdaptiveScore {
   constructor(private readonly ctx: AudioContext, destination: AudioNode, reverb: AudioNode) {
     this.bus = ctx.createGain()
     this.bus.gain.value = 0
-    this.bus.connect(destination)
+    this.level = ctx.createGain()
+    this.bus.connect(this.level).connect(destination)
     const toVerb = ctx.createGain()
-    toVerb.gain.value = 0.55
-    this.bus.connect(toVerb).connect(reverb)
+    toVerb.gain.value = 0.5
+    this.level.connect(toVerb).connect(reverb)
     for (const l of LAYERS) {
       const g = ctx.createGain()
       g.gain.value = 0
@@ -221,6 +348,7 @@ export class AdaptiveScore {
     if (this.timer !== null) return
     const now = this.ctx.currentTime
     this.nextBarTime = now + 0.1
+    this.bar = 0
     this.bus.gain.cancelScheduledValues(now)
     this.bus.gain.setTargetAtTime(0.55, now, 1.2)
     this.tick()
@@ -232,6 +360,11 @@ export class AdaptiveScore {
     window.clearInterval(this.timer)
     this.timer = null
     this.bus.gain.setTargetAtTime(0, this.ctx.currentTime, 0.4)
+  }
+
+  /** Volume da trilha (0..1, já na curva de percepção). */
+  setVolume(v: number): void {
+    this.level.gain.setTargetAtTime(v, this.ctx.currentTime, 0.05)
   }
 
   /** Volume alvo (0..1) de cada camada. */

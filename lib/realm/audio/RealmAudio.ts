@@ -19,7 +19,15 @@ export interface RealmSoundSink {
  * Áudio do reino. Tudo sintetizado. O AudioContext só é criado/retomado após
  * um gesto do usuário (política de autoplay dos navegadores).
  */
+export type VolumeKind = 'master' | 'music' | 'sfx'
+export type Volumes = Record<VolumeKind, number>
+export const DEFAULT_VOLUMES: Volumes = { master: 0.8, music: 0.75, sfx: 0.85 }
+
+/** Curva de percepção: o controle deslizante é linear, o ouvido não. */
+const curve = (v: number) => Math.max(0, Math.min(1, v)) ** 2
+
 export class RealmAudio implements RealmSoundSink {
+  private vol: Volumes = { ...DEFAULT_VOLUMES }
   private ctx: AudioContext | null = null
   private master!: GainNode
   private sfx!: GainNode
@@ -55,7 +63,7 @@ export class RealmAudio implements RealmSoundSink {
     this.enabled = ctx.state === 'running'
     if (this.enabled) {
       this.master.gain.cancelScheduledValues(ctx.currentTime)
-      this.master.gain.setTargetAtTime(0.85, ctx.currentTime, 0.25)
+      this.master.gain.setTargetAtTime(this.masterLevel, ctx.currentTime, 0.25)
       uiClick(ctx, this.sfx, ctx.currentTime + 0.02)
       this.score?.start()
     }
@@ -73,6 +81,24 @@ export class RealmAudio implements RealmSoundSink {
     window.setTimeout(() => {
       if (!this.enabled) ctx.suspend().catch(() => undefined)
     }, 600)
+  }
+
+  get volumes(): Volumes {
+    return { ...this.vol }
+  }
+
+  /** Regulador de som: geral, trilha e efeitos (0..1). Vale antes mesmo de ligar. */
+  setVolume(kind: VolumeKind, v: number): void {
+    this.vol[kind] = Math.max(0, Math.min(1, v))
+    if (!this.ctx) return
+    const t = this.ctx.currentTime
+    if (kind === 'master' && this.enabled) this.master.gain.setTargetAtTime(this.masterLevel, t, 0.05)
+    if (kind === 'music') this.score?.setVolume(curve(this.vol.music))
+    if (kind === 'sfx') this.sfx.gain.setTargetAtTime(0.9 * curve(this.vol.sfx), t, 0.05)
+  }
+
+  private get masterLevel(): number {
+    return 1.33 * curve(this.vol.master)
   }
 
   ui(): void {
@@ -122,9 +148,10 @@ export class RealmAudio implements RealmSoundSink {
     this.flight += (flight - this.flight) * 0.1
     if (!this.enabled) return
     const t = this.ctx.currentTime
-    this.motor.gain.setTargetAtTime(this.machine * 0.22, t, 0.08)
+    const fx = curve(this.vol.sfx)
+    this.motor.gain.setTargetAtTime(this.machine * 0.22 * fx, t, 0.08)
     this.motorFilter.frequency.setTargetAtTime(160 + this.machine * 380, t, 0.1)
-    this.wind.gain.setTargetAtTime(0.012 + this.flight * 0.12, t, 0.2)
+    this.wind.gain.setTargetAtTime((0.012 + this.flight * 0.12) * fx, t, 0.2)
     this.windFilter.frequency.setTargetAtTime(280 + this.flight * 900, t, 0.25)
   }
 
@@ -169,7 +196,7 @@ export class RealmAudio implements RealmSoundSink {
     reverb.connect(wet).connect(this.master)
 
     this.sfx = ctx.createGain()
-    this.sfx.gain.value = 0.9
+    this.sfx.gain.value = 0.9 * curve(this.vol.sfx)
     this.sfx.connect(this.master)
     this.sfx.connect(reverb)
 
@@ -212,6 +239,7 @@ export class RealmAudio implements RealmSoundSink {
     air.start()
 
     this.score = new AdaptiveScore(ctx, this.master, reverb)
+    this.score.setVolume(curve(this.vol.music))
     document.addEventListener('visibilitychange', this.onVisibility)
   }
 

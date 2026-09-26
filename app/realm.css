@@ -144,3 +144,21 @@
   .cover-meta { font-size: 9px; }
   .house-body .lead { font-size: 1.12rem; }
 }
+
+/* Regulador de som */
+.sound-mixer { position: relative; }
+.mixer-toggle { background: none; border: 0; cursor: pointer; color: var(--faint); font: 14px var(--mono); padding: 0.2rem 0.35rem; line-height: 1; transition: color 0.2s; }
+.mixer-toggle:hover, .mixer-toggle:focus-visible, .mixer-toggle.is-open { color: var(--ember); }
+.mixer-panel { position: absolute; right: -0.4rem; top: calc(100% + 12px); z-index: 60; width: 250px; padding: 0.9rem 1rem 0.75rem; background: rgba(11, 10, 9, 0.94); border: 1px solid var(--line-strong); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px); }
+.mixer-panel::before { content: ''; position: absolute; top: -6px; right: 0.85rem; width: 10px; height: 10px; background: inherit; border-left: 1px solid var(--line-strong); border-top: 1px solid var(--line-strong); transform: rotate(45deg); }
+.mixer-title { font: 10px var(--mono); letter-spacing: 0.2em; text-transform: uppercase; color: var(--brass); margin: 0 0 0.6rem; }
+.mixer-row { display: grid; grid-template-columns: 4.2rem 1fr; grid-template-rows: auto auto; align-items: center; column-gap: 0.6rem; margin-bottom: 0.55rem; cursor: pointer; }
+.mixer-name { font: 10.5px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); grid-row: span 2; }
+.mixer-meter { font: 10px var(--mono); letter-spacing: 0.05em; color: var(--ember); opacity: 0.8; }
+.mixer-row input[type='range'] { -webkit-appearance: none; appearance: none; width: 100%; height: 18px; background: transparent; cursor: pointer; margin: 0; }
+.mixer-row input[type='range']::-webkit-slider-runnable-track { height: 2px; background: linear-gradient(90deg, var(--brass), rgba(176, 141, 87, 0.25)); }
+.mixer-row input[type='range']::-moz-range-track { height: 2px; background: linear-gradient(90deg, var(--brass), rgba(176, 141, 87, 0.25)); }
+.mixer-row input[type='range']::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; margin-top: -5px; background: var(--obsidian); border: 1px solid var(--ember); transform: rotate(45deg); }
+.mixer-row input[type='range']::-moz-range-thumb { width: 10px; height: 10px; border-radius: 0; background: var(--obsidian); border: 1px solid var(--ember); transform: rotate(45deg); }
+.mixer-row input[type='range']:focus-visible { outline: 1px solid var(--ember); outline-offset: 3px; }
+@media (max-width: 520px) { .mixer-panel { position: fixed; right: 12px; left: 12px; width: auto; top: 58px; } .mixer-panel::before { display: none; } }
