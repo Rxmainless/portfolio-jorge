@@ -1,54 +1,414 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { ArrowDownRight, ArrowUpRight, Menu, X } from 'lucide-react'
-import { getCopy, type Locale } from '@/lib/i18n'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
+import { SplitText } from 'gsap/SplitText'
+import { ArrowUpRight, Menu, X } from 'lucide-react'
+import { GITHUB, getCopy, type Copy, type Locale } from '@/lib/content'
+import { houses, type House } from '@/lib/realm-data'
+import type { RealmScene } from '@/lib/realm/RealmScene'
+import { AsciiSigil } from './ascii-sigil'
+import { RealmCanvas } from './realm-canvas'
 
-const chars = ' .·:+=*#%@'
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, SplitText)
 
-function AsciiCanvas({ alt, compact = false }: { alt: string; compact?: boolean }) {
-  const ref = useRef<HTMLCanvasElement>(null)
-  const reduced = useRef(false)
+/** Lado do painel por seção — a câmera enquadra a cidade no lado oposto. */
+const SIDES: ('left' | 'right')[] = houses.map((_, i) => (i % 2 === 0 ? 'left' : 'right'))
+const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
+const smooth = (v: number) => v * v * (3 - 2 * v)
+
+export function Portfolio() {
+  const [locale, setLocale] = useState<Locale>('pt-BR')
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [realm, setRealm] = useState<RealmScene | null>(null)
+  const [builds, setBuilds] = useState<number[]>(() => houses.map(() => 0))
+  const copy = getCopy(locale)
+  const rootRef = useRef<HTMLElement>(null)
+  const hudRef = useRef<HTMLDivElement>(null)
+  const labelsRef = useRef<(HTMLDivElement | null)[]>([])
+  const journeyRef = useRef(-1)
+  const introPlayed = useRef(false)
+
   useEffect(() => {
-    const canvas = ref.current
-    if (!canvas) return
-    const context = canvas.getContext('2d')
-    if (!context) return
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
-    reduced.current = media.matches
-    let frame = 0
+    const saved = window.localStorage.getItem('jorge-locale')
+    if (saved === 'pt-BR' || saved === 'en') setLocale(saved)
+  }, [])
+  useEffect(() => {
+    window.localStorage.setItem('jorge-locale', locale)
+    document.documentElement.lang = locale
+    document.title = copy.metaTitle
+  }, [locale, copy.metaTitle])
+
+  const onReady = useCallback((scene: RealmScene) => {
+    setRealm(scene)
+    if (process.env.NODE_ENV !== 'production') Object.assign(window, { __realm: scene, __gsap: gsap, __ST: ScrollTrigger }) // validação
+  }, [])
+
+  // ———————————————————————————————— coreografia de scroll (GSAP ScrollTrigger)
+  useEffect(() => {
+    if (!realm || !rootRef.current) return
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const buildState = houses.map(() => 0)
+    let introDone = false
+    let lastBuildsKey = ''
+
+    const ctx = gsap.context(() => {
+      // Abertura: o voo sobre o mapa enquanto o título é forjado
+      // (só na primeira montagem — trocar o idioma não repete a abertura)
+      const intro = introPlayed.current ? null : realm.playIntro()
+      introPlayed.current = true
+      if (intro) intro.eventCallback('onComplete', () => (introDone = true))
+      else introDone = true
+      const title = new SplitText('.cover-title', { type: 'words,chars' })
+      gsap.from(title.chars, { yPercent: 110, opacity: 0, duration: reduced ? 0.01 : 1.1, ease: 'power3.out', stagger: 0.045, delay: 0.5 })
+      gsap.from('.cover-reveal', { y: 18, opacity: 0, duration: reduced ? 0.01 : 0.9, ease: 'power2.out', stagger: 0.12, delay: 1.3 })
+
+      const setJourney = (v: number) => {
+        journeyRef.current = v
+        realm.setJourney(v)
+      }
+
+      // Cada casa: câmera voa até a sede, depois a máquina constrói a cidade
+      houses.forEach((h, i) => {
+        const proxy = { p: 0 }
+        gsap.to(proxy, {
+          p: 1,
+          ease: 'none',
+          scrollTrigger: { trigger: `#${h.section}`, start: 'top bottom', end: 'bottom bottom', scrub: reduced ? true : 0.9 },
+          onUpdate: () => {
+            const p = proxy.p
+            if (p > 0 && !introDone) {
+              intro?.kill()
+              introDone = true
+            }
+            if (p > 0 || (i === 0 && introDone)) setJourney(i + smooth(clamp01(p / 0.4)))
+            const b = reduced ? (p > 0.35 ? 1 : 0) : clamp01((p - 0.32) / 0.6)
+            buildState[i] = b
+            realm.setBuild(i, b)
+          },
+        })
+        // Painel: surge quando a câmera chega à sede
+        gsap.fromTo(
+          `#${h.section} .house-panel`,
+          { autoAlpha: 0, y: 36 },
+          { autoAlpha: 1, y: 0, ease: 'power2.out', scrollTrigger: { trigger: `#${h.section}`, start: 'top 45%', end: 'top 5%', scrub: reduced ? true : 0.6 } },
+        )
+      })
+
+      // Epílogo: a câmera sobe e mostra o reino inteiro, estradas acesas
+      const ep = { p: 0 }
+      gsap.to(ep, {
+        p: 1,
+        ease: 'none',
+        scrollTrigger: { trigger: '#epilogo', start: 'top bottom', end: 'bottom bottom', scrub: reduced ? true : 0.9 },
+        onUpdate: () => {
+          if (ep.p > 0) setJourney(houses.length + smooth(ep.p))
+        },
+      })
+
+      // Títulos das seções: letras forjadas ao entrar
+      gsap.utils.toArray<HTMLElement>('.split-title').forEach((el) => {
+        const s = new SplitText(el, { type: 'words,chars' })
+        gsap.from(s.chars, { yPercent: 100, opacity: 0, stagger: 0.03, duration: reduced ? 0.01 : 0.7, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 85%' } })
+      })
+      gsap.utils.toArray<HTMLElement>('.stagger-in').forEach((group) => {
+        gsap.from(group.children, { y: 20, opacity: 0, stagger: 0.06, duration: reduced ? 0.01 : 0.6, ease: 'power2.out', scrollTrigger: { trigger: group, start: 'top 88%' } })
+      })
+    }, rootRef)
+
+    // HUD da máquina + rótulos do mapa (sem re-render do React)
     let raf = 0
-    let pointer = { x: 0, y: 0 }
-    const resize = () => { const ratio = Math.min(window.devicePixelRatio || 1, 1.5); canvas.width = canvas.clientWidth * ratio; canvas.height = canvas.clientHeight * ratio; context.font = `${compact ? 8 : 11}px monospace` }
-    const draw = () => {
-      const width = canvas.width; const height = canvas.height; const cols = compact ? 45 : Math.min(78, Math.floor(width / 10)); const rows = compact ? 22 : Math.min(42, Math.floor(height / 16)); const cellW = width / cols; const cellH = height / rows
-      context.clearRect(0, 0, width, height); context.fillStyle = '#d9f76c'; context.textAlign = 'center'; context.textBaseline = 'middle'
-      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) { const nx = (x / cols - .5) * 2; const ny = (y / rows - .5) * 2; const wave = Math.sin(nx * 7 + frame * .018) * .18 + Math.cos(ny * 5 - frame * .014) * .14; const sphere = Math.max(0, 1 - Math.sqrt(nx * nx + ny * ny)); const ripple = Math.sin((nx * nx + ny * ny) * 18 - frame * .02) * .08; const light = sphere + wave + ripple + pointer.x * nx * .08 + pointer.y * ny * .08; if (light > .06) { const index = Math.max(0, Math.min(chars.length - 1, Math.floor(light * chars.length * 1.3))); context.globalAlpha = Math.min(.9, .25 + light); context.fillText(chars[index], x * cellW + cellW / 2, y * cellH + cellH / 2) } }
-      context.globalAlpha = 1; if (!reduced.current) { frame++; raf = requestAnimationFrame(draw) }
+    const loop = () => {
+      const j = journeyRef.current
+      const near = Math.round(j) - 1
+      const hud = hudRef.current
+      if (hud) {
+        if (near >= 0 && near < houses.length) {
+          const st = realm.stageOf(near)
+          const h = houses[near]
+          const bar = '▓'.repeat(Math.round(st.progress * 14)).padEnd(14, '░')
+          hud.textContent = `${h.house} · ${h.seat}   ${st.index >= 0 ? String(st.index + 1).padStart(2, '0') + ' ' + st.label : '—'}   ${bar} ${Math.round(st.progress * 100)}%`
+          hud.style.opacity = st.progress > 0 ? '1' : '0.4'
+        } else hud.style.opacity = '0'
+      }
+      // Só com a capa estabilizada (não durante o voo de abertura) e no epílogo
+      const showLabels = (j > -0.12 && j < 0.35) || j > houses.length + 0.4
+      houses.forEach((_, i) => {
+        const el = labelsRef.current[i]
+        if (!el) return
+        const pr = realm.project(i)
+        el.style.transform = `translate(${pr.x.toFixed(1)}px, ${pr.y.toFixed(1)}px) translate(-50%, -100%)`
+        el.style.opacity = showLabels && pr.visible ? '1' : '0'
+      })
+      const key = buildState.map((b) => (b >= 0.999 ? 1 : 0)).join('')
+      if (key !== lastBuildsKey) {
+        lastBuildsKey = key
+        setBuilds(buildState.map((b) => (b >= 0.999 ? 1 : b)))
+      }
+      raf = requestAnimationFrame(loop)
     }
-    const move = (event: MouseEvent) => { pointer = { x: (event.clientX / window.innerWidth - .5) * 2, y: (event.clientY / window.innerHeight - .5) * 2 } }
-    resize(); draw(); window.addEventListener('resize', resize); window.addEventListener('mousemove', move)
-    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); window.removeEventListener('mousemove', move) }
-  }, [compact])
-  return <canvas ref={ref} className="ascii-canvas" role="img" aria-label={alt} />
+    loop()
+    ScrollTrigger.refresh()
+
+    return () => {
+      cancelAnimationFrame(raf)
+      ctx.revert()
+    }
+  }, [realm, locale])
+
+  /** Navegação: rola (GSAP ScrollTo) até o ponto em que a cidade já está erguida. */
+  const go = (id: string) => (e: React.MouseEvent) => {
+    e.preventDefault()
+    setMenuOpen(false)
+    const el = document.getElementById(id)
+    if (!el) return
+    const isHouse = houses.some((h) => h.section === id)
+    const y = el.offsetTop + (isHouse ? el.offsetHeight - window.innerHeight : 0)
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    gsap.to(window, { scrollTo: y, duration: reduced ? 0 : 2.2, ease: 'power2.inOut' })
+  }
+
+  const builtCount = builds.filter((b) => b >= 1).length
+
+  return (
+    <main className="realm grain" ref={rootRef}>
+      <div className="realm-stage">
+        <RealmCanvas className="realm-canvas" options={{ mode: 'journey', panelSide: SIDES }} onReady={onReady} label={copy.canvasAlt} />
+        <div className="realm-vignette" />
+        <div className="map-labels" aria-hidden="true">
+          {houses.map((h, i) => (
+            <div
+              key={h.section}
+              ref={(el) => {
+                labelsRef.current[i] = el
+              }}
+              className="map-label"
+              style={{ ['--c' as string]: h.color }}
+            >
+              <span>{h.seat}</span>
+              <small>{h.house}</small>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={`realm-loading ${realm ? 'is-done' : ''}`} aria-hidden={!!realm}>
+        <span className="eyebrow">{copy.loading}</span>
+        <span className="loading-bar">░▒▓█▓▒░</span>
+      </div>
+
+      <header className="site-header">
+        <a href="#capa" onClick={go('capa')} className="wordmark" aria-label="Jorge Mesquita — capa">
+          J<span>·</span>M
+        </a>
+        <nav className={menuOpen ? 'nav-links is-open' : 'nav-links'} aria-label="Seções">
+          {houses.map((h, i) => (
+            <a key={h.section} href={`#${h.section}`} onClick={go(h.section)} style={{ ['--c' as string]: h.color }}>
+              <i className={builds[i] >= 1 ? 'is-built' : ''} aria-hidden="true" />
+              {String(i + 1).padStart(2, '0')} {copy.nav[h.section]}
+            </a>
+          ))}
+          <a href="/moodboard" className="nav-mood">
+            {copy.moodboard} ↗
+          </a>
+        </nav>
+        <div className="header-actions">
+          <span className="built-count" aria-live="polite">
+            {builtCount}/{houses.length}
+          </span>
+          <button className="language-toggle" type="button" onClick={() => setLocale(locale === 'pt-BR' ? 'en' : 'pt-BR')} aria-label={`${copy.language}: ${locale}`}>
+            {locale === 'pt-BR' ? 'PT' : 'EN'} <span>↔</span>
+          </button>
+          <button className="menu-toggle" type="button" aria-label={menuOpen ? copy.close : copy.menu} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+          </button>
+        </div>
+      </header>
+
+      <div className="machine-hud" ref={hudRef} aria-hidden="true" />
+
+      <section id="capa" className="cover" aria-labelledby="cover-title">
+        <p className="eyebrow cover-reveal">{copy.cover.eyebrow}</p>
+        <h1 id="cover-title" className="display cover-title">
+          {copy.cover.title}
+        </h1>
+        <p className="cover-sub cover-reveal">{copy.cover.subtitle}</p>
+        <p className="cover-lead cover-reveal">{copy.cover.lead}</p>
+        <div className="cover-houses cover-reveal" aria-label="Casas">
+          {houses.map((h) => (
+            <a key={h.section} href={`#${h.section}`} onClick={go(h.section)} style={{ ['--c' as string]: h.color }} aria-label={`${copy.nav[h.section]} — ${h.house}`}>
+              <AsciiSigil sigil={h.sigil} color={h.color} label={h.house} />
+            </a>
+          ))}
+        </div>
+        <div className="cover-meta cover-reveal">
+          <span>{copy.cover.location}</span>
+          <span className="cue">{copy.cover.cue} ↓</span>
+        </div>
+      </section>
+
+      {houses.map((h, i) => (
+        <section key={h.section} id={h.section} className={`house-section side-${SIDES[i]}`} aria-labelledby={`${h.section}-title`} style={{ ['--c' as string]: h.color }}>
+          <div className="house-sticky">
+            <article className="house-panel">
+              <HouseHeader house={h} index={i} title={copy.nav[h.section]} build={builds[i]} />
+              <SectionBody id={h.section} copy={copy} />
+              <div className="ascii-rule panel-rule" aria-hidden="true">
+                {'░▒▓ ─── ' + h.seat.toUpperCase() + ' ─── ⚙ ────────────────────────────────── ✦'}
+              </div>
+            </article>
+          </div>
+        </section>
+      ))}
+
+      <section id="epilogo" className="epilogue" aria-labelledby="epilogue-title">
+        <div className="epilogue-inner">
+          <p className="ornament" aria-hidden="true">
+            ✦
+          </p>
+          <h2 id="epilogue-title" className="display split-title">
+            {copy.epilogue.title}
+          </h2>
+          <p className="epilogue-body">{copy.epilogue.body}</p>
+          <a href="#capa" onClick={go('capa')} className="text-link">
+            {copy.epilogue.top} ↑
+          </a>
+          <p className="footer-note">
+            {copy.epilogue.footer} · <a href="/moodboard">{copy.moodboard}</a>
+          </p>
+        </div>
+      </section>
+    </main>
+  )
 }
 
-export function Portfolio({ initialLocale = 'pt-BR' }: { initialLocale?: Locale }) {
-  const [locale, setLocale] = useState<Locale>(initialLocale)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [selected, setSelected] = useState('Code')
-  const copy = getCopy(locale)
-  useEffect(() => { const saved = window.localStorage.getItem('jorge-locale') as Locale | null; if (saved === 'pt-BR' || saved === 'en') setLocale(saved) }, [])
-  useEffect(() => { window.localStorage.setItem('jorge-locale', locale); document.documentElement.lang = locale; document.title = copy.metaTitle }, [locale, copy.metaTitle])
-  const toggleLocale = () => setLocale(locale === 'pt-BR' ? 'en' : 'pt-BR')
-  const closeMenu = () => setMenuOpen(false)
-  return <main className="portfolio-shell" id="top">
-    <header className="site-header"><a href="#top" className="wordmark" aria-label="Jorge Mesquita, início">JM<span>.</span></a><nav className={menuOpen ? 'nav-links is-open' : 'nav-links'} aria-label="Navegação principal"><a href="#work" onClick={closeMenu}>01 / {copy.nav.work}</a><a href="#system" onClick={closeMenu}>02 / {copy.nav.system}</a><a href="#process" onClick={closeMenu}>03 / {copy.nav.process}</a><a href="#about" onClick={closeMenu}>04 / {copy.nav.about}</a><a href="#contact" onClick={closeMenu}>05 / {copy.nav.contact}</a></nav><div className="header-actions"><button className="language-toggle" type="button" onClick={toggleLocale} aria-label={`${copy.language}: ${locale}`}>{locale === 'pt-BR' ? 'PT' : 'EN'} <span>↔</span></button><button className="menu-toggle" type="button" aria-label={menuOpen ? copy.close : copy.menu} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</button></div></header>
-    <section className="hero section-grid" aria-labelledby="hero-title"><div className="hero-copy"><p className="eyebrow"><span className="status-dot" /> {copy.hero.eyebrow}</p><h1 id="hero-title">{copy.hero.title.split('\n').map((line, i) => <span key={line}>{i > 0 && <br />}<em className={i === 1 ? 'hero-emphasis' : undefined}>{line}</em></span>)}</h1><p className="hero-intro">{copy.hero.intro}</p><a className="text-link" href="#work">{copy.hero.cta} <ArrowUpRight aria-hidden="true" /></a></div><div className="ascii-stage"><div className="ascii-glow" /><AsciiCanvas alt={copy.hero.artifactAlt} /><div className="ascii-caption"><span>{copy.hero.artifact}</span><span>scroll / transform</span></div></div><div className="hero-meta"><span>{copy.hero.location}</span><span>{copy.hero.scroll} <ArrowDownRight aria-hidden="true" /></span></div></section>
-    <section id="work" className="work-section content-section" aria-labelledby="work-title"><div className="section-heading"><p className="section-number">{copy.work.label}</p><h2 id="work-title">{copy.work.title.split('\n').map((line, i) => <span key={line}>{i > 0 && <br />}<em>{line}</em></span>)}</h2><p className="section-note">{copy.work.note}</p></div><article className="case-study"><div className="case-top"><div><p className="eyebrow">{copy.work.dash.type}</p><h3>{copy.work.dash.title}</h3></div><span className="case-status">{copy.work.dash.status}</span></div><p className="case-description">{copy.work.dash.description}</p><div className="pipeline" aria-label="Pipeline do projeto">{copy.work.dash.pipeline.map((step, i) => <div className="pipeline-step" key={step}><span>{String(i + 1).padStart(2, '0')}</span><strong>{step}</strong>{i < copy.work.dash.pipeline.length - 1 && <ArrowUpRight aria-hidden="true" />}</div>)}</div><div className="case-fields">{[copy.work.dash.problem, copy.work.dash.system, copy.work.dash.implementation, copy.work.dash.decisions, copy.work.dash.technology, copy.work.dash.testing, copy.work.dash.deployment, copy.work.dash.result].map(field => <div key={field}><span>{field}</span><p>{locale === 'pt-BR' ? 'A documentar com dados e decisões do projeto real.' : 'To be documented with real project data and decisions.'}</p></div>)}</div></article></section>
-    <section id="system" className="system-section content-section" aria-labelledby="system-title"><div className="section-heading"><p className="section-number">{copy.system.label}</p><h2 id="system-title">{copy.system.title.split('\n').map((line, i) => <span key={line}>{i > 0 && <br />}<em>{line}</em></span>)}</h2><p className="section-note">{copy.system.note}</p></div><div className="system-explorer"><div className="system-visual"><div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="system-core">JM<span>/</span><small>CORE</small></div>{Object.keys(copy.system.details).map((item, i) => <button type="button" key={item} className={`system-node node-${i + 1} ${selected === item ? 'is-selected' : ''}`} onClick={() => setSelected(item)}>{item}</button>)}</div><div className="system-detail"><p className="eyebrow">{copy.system.hint}</p><h3>{selected}</h3><p>{copy.system.details[selected as keyof typeof copy.system.details]}</p></div></div></section>
-    <section id="process" className="process-section content-section" aria-labelledby="process-title"><div className="section-heading"><p className="section-number">{copy.process.label}</p><h2 id="process-title">{copy.process.title.split('\n').map((line, i) => <span key={line}>{i > 0 && <br />}<em>{line}</em></span>)}</h2></div><div className="process-grid">{copy.process.steps.map(([num, title, text]) => <div className="process-step" key={num}><span>{num}</span><h3>{title}</h3><p>{text}</p></div>)}</div></section>
-    <section id="about" className="about-section content-section" aria-labelledby="about-title"><div className="section-heading"><p className="section-number">{copy.about.label}</p><h2 id="about-title">{copy.about.title.split('\n').map((line, i) => <span key={line}>{i > 0 && <br />}<em>{line}</em></span>)}</h2></div><div className="about-copy"><p className="eyebrow">{copy.about.profile}</p><p className="large-copy">{copy.about.copy}</p><div className="about-details">{[[copy.about.education, copy.about.educationValue], [copy.about.courses, copy.about.coursesValue], [copy.about.skills, copy.about.skillsValue]].map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}</div></div></section>
-    <section id="contact" className="contact-section" aria-labelledby="contact-title"><p className="section-number">{copy.contact.label}</p><h2 id="contact-title">{copy.contact.title.split('\n').map((line, i) => <span key={line}>{i > 0 && <br />}<em>{line}</em></span>)}</h2><p className="contact-copy">{copy.contact.copy}</p><a className="contact-link" href="mailto:seu-email-profissional@exemplo.com">{copy.contact.email} <ArrowUpRight aria-hidden="true" /></a><div className="contact-footer"><span>Jorge Mesquita © 2026</span><span>{copy.contact.footer}</span><a href="#top">{copy.contact.top} ↑</a></div></section>
-  </main>
+function HouseHeader({ house, index, title, build }: { house: House; index: number; title: string; build: number }) {
+  return (
+    <header className="house-head">
+      <div className="house-sigil">
+        <AsciiSigil sigil={house.sigil} color={house.color} label={`Sigilo da ${house.house}`} reveal={Math.max(0.02, build)} />
+      </div>
+      <div>
+        <p className="eyebrow">
+          <span className="house-n">{String(index + 1).padStart(2, '0')}</span> {house.house} · {house.seat}
+        </p>
+        <h2 id={`${house.section}-title`} className="display split-title">
+          {title}
+        </h2>
+        <p className="house-words">“{house.words}”</p>
+      </div>
+    </header>
+  )
+}
+
+function SectionBody({ id, copy }: { id: House['section']; copy: Copy }) {
+  switch (id) {
+    case 'perfil':
+      return (
+        <div className="house-body">
+          <p className="lead">{copy.perfil.lead}</p>
+          <p>{copy.perfil.body}</p>
+          <dl className="facts stagger-in">
+            {copy.perfil.facts.map(([k, v]) => (
+              <div key={k}>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )
+    case 'formacao':
+      return (
+        <div className="house-body">
+          <div className="degree">
+            <span className="eyebrow">{copy.formacao.level}</span>
+            <h3>{copy.formacao.degree}</h3>
+            <p className="pending">{copy.formacao.pending}</p>
+          </div>
+          <p className="note">{copy.formacao.note}</p>
+        </div>
+      )
+    case 'cursos':
+      return (
+        <div className="house-body">
+          <p className="lead">{copy.cursos.lead}</p>
+          <ol className="chain stagger-in" aria-label={copy.cursos.title}>
+            {Array.from({ length: 5 }, (_, i) => (
+              <li key={i} className="link-empty">
+                <span aria-hidden="true">◯</span>
+                {copy.cursos.empty}
+              </li>
+            ))}
+          </ol>
+          <p className="pending">{copy.cursos.pending}</p>
+        </div>
+      )
+    case 'habilidades':
+      return (
+        <div className="house-body">
+          <p className="lead">{copy.habilidades.lead}</p>
+          <div className="skill-groups">
+            {copy.skillGroups.map((g) => (
+              <div key={g.title} className="skill-group">
+                <h3 className="eyebrow">{g.title}</h3>
+                <ul className="stagger-in">
+                  {g.items.map((s) => (
+                    <li key={s.name} title={`${copy.habilidades.used}: ${s.evidence.join(', ')}`}>
+                      <span>{s.name}</span>
+                      <small>{s.evidence.join(' · ')}</small>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    case 'projetos':
+      return (
+        <div className="house-body">
+          <p className="lead">{copy.projetos.lead}</p>
+          <ul className="projects stagger-in">
+            {copy.projects.map((p) => (
+              <li key={p.id} className="project">
+                <div className="project-top">
+                  <h3>{p.name}</h3>
+                  {p.status && <span className="status">{p.status}</span>}
+                </div>
+                <p className="eyebrow">{p.kind}</p>
+                <p className="project-summary">{p.summary}</p>
+                <p className="project-stack">
+                  <span>{copy.projetos.stack}</span> {p.stack.join(' · ')}
+                </p>
+                {p.links.length > 0 && (
+                  <div className="project-links">
+                    {p.links.map((l) => (
+                      <a key={l.url} href={l.url} target="_blank" rel="noreferrer">
+                        {l.label} <ArrowUpRight aria-hidden="true" />
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    case 'contato':
+      return (
+        <div className="house-body">
+          <p className="lead">{copy.contato.lead}</p>
+          <a className="raven-link" href={GITHUB} target="_blank" rel="noreferrer">
+            <span className="eyebrow">{copy.contato.github}</span>
+            <span className="raven-url">
+              github.com/Rxmainless <ArrowUpRight aria-hidden="true" />
+            </span>
+          </a>
+          <p className="pending">{copy.contato.email}</p>
+        </div>
+      )
+  }
 }

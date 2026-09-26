@@ -1,0 +1,127 @@
+/* ————————————————————————————————————————————— portfólio: o reino */
+.realm { position: relative; }
+.realm-stage { position: fixed; inset: 0; z-index: 0; }
+.realm-canvas { position: absolute; inset: 0; }
+.realm-canvas canvas { display: block; width: 100%; height: 100%; }
+.realm-vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 45%, rgba(11, 10, 9, 0.55) 80%, rgba(11, 10, 9, 0.92) 100%), linear-gradient(to bottom, rgba(11, 10, 9, 0.7), transparent 18%, transparent 80%, rgba(11, 10, 9, 0.75)); }
+.realm-loading { position: fixed; inset: 0; z-index: 60; display: grid; place-content: center; gap: 14px; justify-items: center; background: var(--obsidian); transition: opacity 0.9s ease, visibility 0.9s; }
+.realm-loading.is-done { opacity: 0; visibility: hidden; }
+.loading-bar { font: 14px var(--mono); color: var(--brass); letter-spacing: 0.3em; animation: forge 1.4s steps(4) infinite; }
+@keyframes forge { 50% { opacity: 0.35; } }
+
+.map-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.map-label { position: absolute; left: 0; top: 0; display: grid; justify-items: center; gap: 2px; padding-bottom: 10px; transition: opacity 0.5s; will-change: transform; text-align: center; white-space: nowrap; }
+.map-label::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 1px; height: 7px; background: var(--c); }
+.map-label span { font: 600 13px var(--display); letter-spacing: 0.16em; text-transform: uppercase; color: var(--parchment); text-shadow: 0 0 12px #000; }
+.map-label small { font: 9.5px var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--c); }
+
+.site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 30; display: flex; align-items: center; gap: 2rem; height: 68px; padding: 0 3.2vw; background: linear-gradient(to bottom, rgba(11, 10, 9, 0.85), transparent); }
+.wordmark { font: 800 1.2rem var(--display); letter-spacing: 0.12em; }
+.wordmark span { color: var(--brass); }
+.nav-links { display: flex; gap: 1.4rem; font: 10.5px var(--mono); text-transform: uppercase; letter-spacing: 0.12em; color: var(--dim); }
+.nav-links a { display: inline-flex; align-items: center; gap: 7px; transition: color 0.2s; }
+.nav-links a:hover, .nav-links a:focus-visible { color: var(--parchment); }
+.nav-links i { width: 6px; height: 6px; border: 1px solid var(--c); transform: rotate(45deg); transition: background 0.4s; }
+.nav-links i.is-built { background: var(--c); }
+.nav-mood { color: var(--brass) !important; }
+.header-actions { margin-left: auto; display: flex; align-items: center; gap: 1.1rem; }
+.built-count { font: 10.5px var(--mono); color: var(--brass); letter-spacing: 0.1em; }
+.language-toggle, .menu-toggle { color: var(--parchment); background: none; border: 0; cursor: pointer; font: 10.5px var(--mono); letter-spacing: 0.1em; }
+.language-toggle span { color: var(--brass); }
+.menu-toggle { display: none; padding: 0.4rem; }
+.menu-toggle svg { width: 18px; }
+
+.machine-hud { position: fixed; left: 3.2vw; bottom: 22px; z-index: 30; font: 10.5px var(--mono); letter-spacing: 0.08em; color: var(--brass); white-space: pre; transition: opacity 0.5s; opacity: 0; pointer-events: none; text-shadow: 0 0 10px #000; }
+
+/* Capa */
+.cover { position: relative; z-index: 2; min-height: 100vh; display: grid; align-content: center; justify-items: center; text-align: center; gap: 1.2rem; padding: 12vh 6vw 8vh; }
+.cover-title { font-size: clamp(2.6rem, 7.4vw, 8rem); letter-spacing: 0.08em; max-width: 14ch; text-shadow: 0 0 40px rgba(0, 0, 0, 0.9), 0 2px 0 rgba(0, 0, 0, 0.6); }
+.cover-title div { display: inline-block; }
+.cover-sub { font: 500 clamp(0.9rem, 1.4vw, 1.1rem) var(--display); letter-spacing: 0.5em; text-transform: uppercase; color: var(--brass); }
+.cover-lead { max-width: 520px; font-size: 1.2rem; font-style: italic; color: #c3b797; text-shadow: 0 0 16px #000; }
+.cover-houses { display: flex; gap: 14px; margin-top: 1.6rem; }
+.cover-houses a { width: 64px; height: 50px; border: 1px solid var(--line); background: rgba(11, 10, 9, 0.55); transition: border-color 0.3s, transform 0.3s; }
+.cover-houses a:hover, .cover-houses a:focus-visible { border-color: var(--c); transform: translateY(-3px); }
+.cover-meta { position: absolute; left: 3.2vw; right: 3.2vw; bottom: 26px; display: flex; justify-content: space-between; font: 10.5px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.cue { color: var(--parchment); animation: forge 2.4s ease-in-out infinite; }
+
+/* Seções das casas: 240vh — a câmera voa, depois a cidade é construída */
+.house-section { position: relative; z-index: 2; height: 240vh; }
+.house-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; padding: 84px 3.2vw 64px; pointer-events: none; }
+.side-right .house-sticky { justify-content: flex-end; }
+.house-panel { pointer-events: auto; width: min(520px, 42vw); max-height: calc(100vh - 160px); overflow-y: auto; padding: 1.8rem 1.8rem 2rem; background: linear-gradient(160deg, rgba(20, 17, 13, 0.9), rgba(11, 10, 9, 0.84)); border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55); backdrop-filter: blur(3px); position: relative; visibility: hidden; }
+.house-panel::before { content: ''; position: absolute; left: -1px; top: -1px; width: 46px; height: 2px; background: var(--c); }
+.house-panel::after { content: '✦'; position: absolute; right: 14px; top: 10px; font-size: 11px; color: var(--brass); opacity: 0.6; }
+.house-panel::-webkit-scrollbar { width: 4px; }
+.house-panel::-webkit-scrollbar-thumb { background: var(--line-strong); }
+.house-head { display: grid; grid-template-columns: 96px 1fr; gap: 1.2rem; align-items: center; padding-bottom: 1.3rem; border-bottom: 1px solid var(--line); }
+.house-sigil { height: 84px; }
+.house-n { color: var(--c); }
+.house-head h2 { font-size: clamp(1.7rem, 2.5vw, 2.5rem); margin: 0.35rem 0 0.2rem; white-space: nowrap; }
+.house-head h2 div { display: inline-block; }
+.house-words { font-style: italic; color: var(--dim); font-size: 1.05rem; }
+.panel-rule { margin-top: 1.4rem; color: color-mix(in srgb, var(--c) 55%, var(--faint)); font-size: 10.5px; }
+.house-body { padding-top: 1.3rem; display: grid; gap: 1rem; font-size: 1.08rem; }
+.house-body .lead { font-size: 1.28rem; line-height: 1.35; }
+.house-body > p:not(.lead):not(.pending):not(.eyebrow) { color: #bfb393; }
+.pending { font: 11px var(--mono); letter-spacing: 0.08em; color: var(--faint); text-transform: uppercase; }
+.note { font-style: italic; color: var(--dim); }
+.facts { display: grid; gap: 0.7rem; margin: 0.4rem 0 0; }
+.facts div { display: grid; grid-template-columns: 90px 1fr; border-top: 1px solid var(--line); padding-top: 0.6rem; }
+.facts dt { font: 10px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); padding-top: 4px; }
+.facts dd { margin: 0; }
+.degree { border: 1px solid var(--line); padding: 1.1rem 1.2rem; background: rgba(217, 204, 174, 0.03); display: grid; gap: 0.35rem; }
+.degree h3 { font: 600 1.25rem var(--display); letter-spacing: 0.06em; }
+.chain { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.chain li { display: flex; align-items: center; gap: 12px; padding: 0.55rem 0.8rem; border: 1px dashed var(--line-strong); font: 11px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+.chain li span { color: var(--brass); opacity: 0.6; }
+.skill-groups { display: grid; gap: 1.1rem; }
+.skill-group h3 { margin-bottom: 0.5rem; color: var(--c); }
+.skill-group ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; }
+.skill-group li { display: grid; gap: 1px; padding: 0.35rem 0; border-bottom: 1px solid var(--line); }
+.skill-group li span { font-size: 1.02rem; }
+.skill-group li small { font: 9.5px var(--mono); letter-spacing: 0.04em; color: var(--faint); }
+.projects { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; }
+.project { border: 1px solid var(--line); padding: 1rem 1.1rem; display: grid; gap: 0.45rem; background: rgba(217, 204, 174, 0.025); }
+.project-top { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+.project h3 { font: 600 1.08rem var(--display); letter-spacing: 0.06em; }
+.status { font: 9.5px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--c); border: 1px solid var(--line-strong); padding: 2px 6px; white-space: nowrap; }
+.project-summary { font-size: 1rem; line-height: 1.45; color: #c3b797; }
+.project-stack { font: 10.5px/1.6 var(--mono); color: var(--dim); }
+.project-stack span { color: var(--brass); text-transform: uppercase; letter-spacing: 0.12em; margin-right: 6px; }
+.project-links { display: flex; gap: 1.1rem; }
+.project-links a, .raven-link, .text-link { display: inline-flex; align-items: center; gap: 6px; font: 11px var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--parchment); border-bottom: 1px solid var(--brass); padding-bottom: 3px; width: fit-content; }
+.project-links a:hover, .raven-link:hover, .text-link:hover { color: var(--ember); }
+.project-links svg, .raven-link svg { width: 13px; }
+.raven-link { display: grid; gap: 6px; font: 600 clamp(1.2rem, 2vw, 1.6rem) var(--display); text-transform: none; letter-spacing: 0.04em; padding-bottom: 8px; }
+.raven-link .eyebrow { color: var(--dim); }
+.raven-url { display: inline-flex; align-items: center; gap: 8px; }
+.raven-url svg { width: 18px; }
+
+/* Epílogo */
+.epilogue { position: relative; z-index: 2; height: 200vh; }
+.epilogue-inner { position: sticky; top: 0; height: 100vh; display: grid; align-content: end; justify-items: center; text-align: center; gap: 1.2rem; padding: 0 6vw 9vh; }
+.epilogue-inner .ornament { width: 260px; }
+.epilogue-inner h2 { font-size: clamp(2.4rem, 6vw, 5.5rem); text-shadow: 0 0 30px #000; }
+.epilogue-inner h2 div { display: inline-block; }
+.epilogue-body { max-width: 560px; font-size: 1.25rem; font-style: italic; color: #c3b797; text-shadow: 0 0 14px #000; }
+.footer-note { margin-top: 1.4rem; font: 10px var(--mono); letter-spacing: 0.08em; color: var(--faint); max-width: 640px; }
+.footer-note a { color: var(--brass); }
+
+@media (max-width: 980px) {
+  .nav-links { display: none; position: absolute; top: 60px; left: 0; right: 0; padding: 1.4rem 6vw; background: rgba(11, 10, 9, 0.97); border-bottom: 1px solid var(--line); flex-direction: column; gap: 1.2rem; }
+  .nav-links.is-open { display: flex; }
+  .menu-toggle { display: block; }
+  .house-sticky, .side-right .house-sticky { align-items: flex-end; justify-content: center; padding: 72px 4vw 56px; }
+  .house-panel { width: 100%; max-height: 52vh; padding: 1.2rem 1.2rem 1.4rem; }
+  .house-head { grid-template-columns: 64px 1fr; gap: 0.9rem; }
+  .house-sigil { height: 58px; }
+  .skill-group ul { grid-template-columns: 1fr; }
+  .machine-hud { display: none; }
+  .cover-houses a { width: 46px; height: 38px; }
+}
+@media (max-width: 520px) {
+  .cover-houses { gap: 8px; }
+  .cover-meta { font-size: 9px; }
+  .house-body .lead { font-size: 1.12rem; }
+}
