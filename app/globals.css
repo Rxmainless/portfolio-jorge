@@ -110,10 +110,17 @@ h1, h2, h3, h4, p { margin: 0; }
 .mb-map th { font: 10px var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); font-weight: 400; }
 .mb-map td:first-child { font-family: var(--display); letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.95rem; }
 .mb-map .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 10px; }
+.mb-sounds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.mb-sound { all: unset; box-sizing: border-box; cursor: pointer; background: var(--obsidian); padding: 1.2rem 1.3rem; display: grid; grid-template-columns: 32px 1fr auto; grid-template-rows: auto auto; column-gap: 0.8rem; align-items: center; transition: background 0.25s; }
+.mb-sound:hover, .mb-sound:focus-visible { background: #15120e; }
+.mb-sound .n { grid-row: 1 / 3; font: 11px var(--mono); color: var(--brass); }
+.mb-sound strong { font: 600 0.95rem var(--display); letter-spacing: 0.1em; text-transform: uppercase; }
+.mb-sound small { grid-column: 2; color: var(--dim); font-size: 0.95rem; font-style: italic; }
+.mb-sound .play { grid-column: 3; grid-row: 1 / 3; color: var(--ember); font-size: 12px; }
 .mb-note { margin-top: 2rem; color: var(--faint); font-size: 0.95rem; font-style: italic; max-width: 760px; }
 
 @media (max-width: 900px) {
-  .mb-traits, .mb-swatches, .mb-houses, .mb-sigils { grid-template-columns: 1fr 1fr; }
+  .mb-traits, .mb-swatches, .mb-houses, .mb-sigils, .mb-sounds { grid-template-columns: 1fr 1fr; }
   .mb-type > div { grid-template-columns: 1fr; gap: 1rem; }
   .mb-refs, .mb-ornaments { grid-template-columns: 1fr; }
   .mb-head { grid-template-columns: 1fr; gap: 0.6rem; }
@@ -121,7 +128,7 @@ h1, h2, h3, h4, p { margin: 0; }
   .mb-map { font-size: 0.95rem; }
 }
 @media (max-width: 560px) {
-  .mb-traits, .mb-swatches, .mb-houses, .mb-sigils { grid-template-columns: 1fr; }
+  .mb-traits, .mb-swatches, .mb-houses, .mb-sigils, .mb-sounds { grid-template-columns: 1fr; }
   .mb-house { grid-template-columns: 90px 1fr; }
   .mb-key { height: 380px; }
   .mb-map th:nth-child(3), .mb-map td:nth-child(3) { display: none; }

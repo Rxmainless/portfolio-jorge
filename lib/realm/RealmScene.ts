@@ -4,6 +4,7 @@ import { houses, roads, type House } from '../realm-data'
 import { setupEnvironment } from './scene/environment'
 import { createLighting, focusShadow, type SceneLights } from './scene/lighting'
 import { palette as enginePalette } from './scene/materials'
+import type { RealmSoundSink } from './audio/RealmAudio'
 import { buildConstructionTimeline, type Stage } from './systems/CityConstructionSystem'
 import type { SkillCityConfig } from './types/skill'
 import { Banner } from './world/Banner'
@@ -66,6 +67,11 @@ export class RealmScene {
   private time = 0
   private frameCount = 0
   private previewLoop: gsap.core.Timeline | null = null
+  private sound: RealmSoundSink | null = null
+  private readonly lastDrive: number[] = []
+  private readonly lastBuild: number[] = []
+  private readonly tickAcc: number[] = []
+  private readonly prevCam = new THREE.Vector3()
   private readonly reduced: boolean
   private readonly tmp = new THREE.Vector3()
   private readonly onPointer = (e: PointerEvent) => this.pointer.set((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1)
@@ -76,7 +82,7 @@ export class RealmScene {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', stencil: true })
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, opts.mode === 'preview' ? 1.5 : 1.75))
     this.renderer.shadowMap.enabled = true
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    this.renderer.shadowMap.type = THREE.PCFShadowMap
     this.renderer.shadowMap.autoUpdate = false
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping
     this.renderer.toneMappingExposure = 1.05
@@ -168,14 +174,28 @@ export class RealmScene {
     const b = this.builds[i]
     const site = this.sites[i]
     if (!b || Math.abs(b.progress - p) < 1e-4) return
+    const before = this.stageOf(i).index
+    const forward = p > b.progress
     b.progress = p
     b.tl.progress(p, true)
+    // Som: cada etapa cruzada ao descer toca seu efeito (no máximo as 2 últimas,
+    // para um salto grande de scroll não virar uma avalanche); subir rebobina.
+    if (this.sound) {
+      const after = this.stageOf(i).index
+      if (forward && after > before) for (let k = Math.max(before + 1, after - 1); k <= after; k++) this.sound.stage(b.stages[k].id, i)
+      else if (!forward && after < before) this.sound.rewind()
+    }
     const built = p >= 0.999
     const was = site.built
     site.built = built
     site.constructing = p > 0 && !built
     if (was !== built) this.continent?.refreshRoads()
     this.banners[i].setHoist(THREE.MathUtils.clamp((p - 0.88) / 0.12, 0, 1))
+  }
+
+  /** Liga a cena a um sistema de som (ou desliga com null). */
+  setSoundSink(sink: RealmSoundSink | null): void {
+    this.sound = sink
   }
 
   /** Etapa atual da construção da cidade i (índice 0–8 e rótulo). */
@@ -302,6 +322,7 @@ export class RealmScene {
       if (s.constructing) active = s
     })
     this.continent?.update(dt)
+    if (this.sound) this.updateSound(dt)
     const a = active as SkillSite | null
     if (a) {
       this.shaftLight.position.set(a.position.x, -2.5, a.position.z)
@@ -312,6 +333,37 @@ export class RealmScene {
     const dist = this.camera.position.distanceTo(this.current.target)
     ;(this.scene.fog as THREE.FogExp2).density = 0.62 / Math.max(dist, 10)
     this.renderer.render(this.scene, this.camera)
+  }
+
+  /**
+   * Sons contínuos derivados do movimento real: cliques de dente a cada
+   * volta da engrenagem motriz, ronco proporcional à velocidade de construção,
+   * vento proporcional à velocidade da câmera.
+   */
+  private updateSound(dt: number): void {
+    if (dt <= 0) return
+    let machine = 0
+    this.sites.forEach((s, i) => {
+      const drive = s.state.drive
+      const prevDrive = this.lastDrive[i] ?? drive
+      const dDrive = Math.abs(drive - prevDrive)
+      this.lastDrive[i] = drive
+      const prog = this.builds[i].progress
+      const dProg = Math.abs(prog - (this.lastBuild[i] ?? prog))
+      this.lastBuild[i] = prog
+      if (!s.constructing || dProg < 1e-5) return
+      machine = Math.max(machine, Math.min(1, (dProg / dt) * 6))
+      // Um estalo a cada dente (40 dentes ⇒ 2π/40 rad) da engrenagem principal, com teto
+      this.tickAcc[i] = (this.tickAcc[i] ?? 0) + dDrive
+      const tooth = (Math.PI * 2) / 40
+      if (this.tickAcc[i] >= tooth * 3) {
+        this.tickAcc[i] = 0
+        this.sound!.tick(machine)
+      }
+    })
+    const camSpeed = this.prevCam.distanceTo(this.camera.position) / dt
+    this.prevCam.copy(this.camera.position)
+    this.sound!.setActivity(machine, Math.min(1, camSpeed / 60))
   }
 
   private resize(): void {

@@ -17,7 +17,7 @@ pnpm build
 | Capa | o continente inteiro | abertura: voo sobre o mapa, título forjado |
 | Perfil | Stark · Winterfell | quem sou |
 | Formação | Hightower · Vilavelha | ADS (Senac, via Embarque Digital) e Engenharia de Software (UNIFG) |
-| Cursos | Tyrell · Jardim de Cima | corrente de meistre: Cibersegurança (Cisco), idiomas (Duolingo), linguagens |
+| Cursos | Tyrell · Jardim de Cima | Cisco *Digital Safety and Security Awareness*, idiomas (Duolingo), linguagens (The Odin Project) |
 | Habilidades | Lannister · Rochedo Casterly | tecnologias + onde foram usadas |
 | Projetos | Targaryen · Pedra do Dragão | Dash Digital, Lumen, ONDA, RadarPME, Skill Map 3D |
 | Contato | Patrulha da Noite · Castelo Negro | GitHub / e-mail |
@@ -43,10 +43,22 @@ lib/
     world/…                 engrenagens, cabos, guinchos, cidades, continente, estandartes
 ```
 
-## Completar o conteúdo
+## Som
 
-Edite `lib/content.ts`. Ainda faltam o nome exato do curso de cibersegurança
-da Cisco e quais cursos de linguagens foram feitos. Nada foi inventado.
+Todos os sons são sintetizados em tempo real (Web Audio API) — nenhum arquivo
+de áudio. Cada etapa da construção tem seu efeito; o ronco do motor e os cliques
+de dente seguem a velocidade do scroll; rolar para cima rebobina. O som só liga
+pelo botão **Som** (exigência de autoplay dos navegadores) e a preferência fica
+salva. Ouça cada efeito isolado em `/moodboard` → Paisagem sonora.
+
+```
+lib/realm/audio/sfx.ts         efeitos (tocam também em OfflineAudioContext)
+lib/realm/audio/RealmAudio.ts  mixagem, reverb, motor/vento contínuos, limites anti-avalanche
+```
+
+## Conteúdo
+
+Todo o texto está em `lib/content.ts` (PT/EN), só com fatos verificáveis.
 
 ## Créditos e direitos
 

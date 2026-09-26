@@ -106,7 +106,7 @@ export class Continent extends THREE.Group {
     }
 
     // Mar
-    const sea = new THREE.Mesh(new THREE.PlaneGeometry(1200, 1200), new THREE.MeshStandardMaterial({ color: SEA, roughness: 0.35, metalness: 0.55 }))
+    const sea = new THREE.Mesh(new THREE.PlaneGeometry(1200, 1200), new THREE.MeshStandardMaterial({ color: SEA, roughness: 0.6, metalness: 0.3, envMapIntensity: 0.25 }))
     sea.rotation.x = -Math.PI / 2
     sea.position.y = -0.55
     sea.receiveShadow = true

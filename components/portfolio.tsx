@@ -9,6 +9,7 @@ import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { EMAIL, GITHUB, LINKEDIN, getCopy, type Copy, type Locale } from '@/lib/content'
 import { houses, type House } from '@/lib/realm-data'
 import type { RealmScene } from '@/lib/realm/RealmScene'
+import { RealmAudio } from '@/lib/realm/audio/RealmAudio'
 import { AsciiSigil } from './ascii-sigil'
 import { RealmCanvas } from './realm-canvas'
 
@@ -30,11 +31,62 @@ export function Portfolio() {
   const labelsRef = useRef<(HTMLDivElement | null)[]>([])
   const journeyRef = useRef(-1)
   const introPlayed = useRef(false)
+  const audioRef = useRef<RealmAudio | null>(null)
+  const [soundOn, setSoundOn] = useState(false)
 
   useEffect(() => {
     const saved = window.localStorage.getItem('jorge-locale')
     if (saved === 'pt-BR' || saved === 'en') setLocale(saved)
   }, [])
+
+  // ———————————————————————————————— som (Web Audio, só após um gesto do usuário)
+  useEffect(() => {
+    const audio = new RealmAudio()
+    audioRef.current = audio
+    if (process.env.NODE_ENV !== 'production') {
+      Object.assign(window, { __audio: audio })
+      import('@/lib/realm/audio/sfx').then((m) => Object.assign(window, { __sfx: m })) // validação offline
+    }
+    // Preferência salva: religa no primeiro clique/tecla (autoplay exige gesto)
+    let cleanup = () => {}
+    if (window.localStorage.getItem('jorge-sound') === 'on') {
+      const resume = (e: Event) => {
+        // O próprio botão de som cuida do clique (senão ligaria e desligaria em seguida)
+        if ((e.target as Element | null)?.closest?.('.sound-toggle, .sound-invite')) return
+        cleanup()
+        if (audio.isEnabled || window.localStorage.getItem('jorge-sound') !== 'on') return
+        audio.enable().then((ok) => setSoundOn(ok))
+      }
+      window.addEventListener('pointerdown', resume)
+      window.addEventListener('keydown', resume)
+      cleanup = () => {
+        window.removeEventListener('pointerdown', resume)
+        window.removeEventListener('keydown', resume)
+      }
+    }
+    return () => {
+      cleanup()
+      audio.dispose()
+    }
+  }, [])
+  useEffect(() => {
+    realm?.setSoundSink(audioRef.current)
+    return () => realm?.setSoundSink(null)
+  }, [realm])
+
+  const toggleSound = async () => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (audio.isEnabled) {
+      audio.disable()
+      setSoundOn(false)
+      window.localStorage.setItem('jorge-sound', 'off')
+    } else {
+      const ok = await audio.enable()
+      setSoundOn(ok)
+      window.localStorage.setItem('jorge-sound', ok ? 'on' : 'off')
+    }
+  }
   useEffect(() => {
     window.localStorage.setItem('jorge-locale', locale)
     document.documentElement.lang = locale
@@ -162,6 +214,7 @@ export function Portfolio() {
   const go = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault()
     setMenuOpen(false)
+    audioRef.current?.ui()
     const el = document.getElementById(id)
     if (!el) return
     const isHouse = houses.some((h) => h.section === id)
@@ -218,6 +271,9 @@ export function Portfolio() {
           <span className="built-count" aria-live="polite">
             {builtCount}/{houses.length}
           </span>
+          <button className={`sound-toggle ${soundOn ? 'is-on' : ''}`} type="button" onClick={toggleSound} aria-pressed={soundOn} aria-label={copy.sound.label}>
+            <span aria-hidden="true">{soundOn ? '♪ ▂▅▇' : '♪ ▁▁▁'}</span> {soundOn ? copy.sound.on : copy.sound.off}
+          </button>
           <button className="language-toggle" type="button" onClick={() => setLocale(locale === 'pt-BR' ? 'en' : 'pt-BR')} aria-label={`${copy.language}: ${locale}`}>
             {locale === 'pt-BR' ? 'PT' : 'EN'} <span>↔</span>
           </button>
@@ -243,6 +299,11 @@ export function Portfolio() {
             </a>
           ))}
         </div>
+        {!soundOn && (
+          <button type="button" className="sound-invite cover-reveal" onClick={toggleSound}>
+            {copy.sound.invite}
+          </button>
+        )}
         <div className="cover-meta cover-reveal">
           <span>{copy.cover.location}</span>
           <span className="cue">{copy.cover.cue} ↓</span>

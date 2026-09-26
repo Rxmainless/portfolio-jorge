@@ -34,7 +34,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="pt-BR" className={`${display.variable} ${serif.variable} ${mono.variable}`}>
       <body className="antialiased">
         {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {/* O script de analytics só existe quando hospedado na Vercel */}
+        {process.env.VERCEL === '1' && <Analytics />}
       </body>
     </html>
   )

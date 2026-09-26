@@ -6,6 +6,44 @@ import { AsciiSigil } from './ascii-sigil'
 
 const RealmPreview = dynamic(() => import('./realm-canvas').then((m) => m.RealmPreview), { ssr: false })
 
+const SOUNDS: [string, string, string][] = [
+  ['gears', 'Engrenagens', 'catraca acelerando + motor'],
+  ['mechanism', 'Mecanismo', 'lâmpadas, freio solto'],
+  ['cables', 'Cabos', 'corda metálica tensionando'],
+  ['hatch', 'Escotilha', 'destrava e desliza na pedra'],
+  ['platform', 'Plataforma', 'baque + catraca de içamento'],
+  ['foundation', 'Fundação', 'arrasto pesado e travamento'],
+  ['tower', 'Torre', 'seções telescópicas travando'],
+  ['buildings', 'Edifícios', 'três travamentos em sequência'],
+  ['complete', 'Cidade completa', 'sino de latão + estandarte'],
+]
+
+/** Toca cada efeito isolado (o contexto de áudio nasce no clique). */
+function SoundBoard() {
+  const play = async (id: string) => {
+    const w = window as unknown as { __mbAudio?: AudioContext }
+    const ctx = (w.__mbAudio ??= new AudioContext())
+    await ctx.resume()
+    const { STAGE_SFX } = await import('@/lib/realm/audio/sfx')
+    const out = ctx.createGain()
+    out.gain.value = 0.8
+    out.connect(ctx.destination)
+    STAGE_SFX[id]?.(ctx, out, ctx.currentTime + 0.02)
+  }
+  return (
+    <div className="mb-sounds">
+      {SOUNDS.map(([id, name, desc], i) => (
+        <button key={id} type="button" className="mb-sound" onClick={() => play(id)}>
+          <span className="n">{String(i + 1).padStart(2, '0')}</span>
+          <strong>{name}</strong>
+          <small>{desc}</small>
+          <span className="play" aria-hidden="true">▶</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 const SECTION_LABEL: Record<string, string> = {
   perfil: 'Perfil',
   formacao: 'Formação',
@@ -199,6 +237,15 @@ export function Moodboard() {
           </tbody>
         </table>
         <p className="mb-note">Homenagem inspirada em Game of Thrones (HBO / George R. R. Martin). Casas, sedes e lemas curtos são referências temáticas; sigilos, mapa, cidades e animações são criações originais. Nenhum logotipo, imagem, fonte ou música oficial é utilizado.</p>
+      </section>
+
+      <section className="mb-section" aria-labelledby="mb-sound">
+        <div className="mb-head">
+          <span className="n">06</span>
+          <h2 id="mb-sound" className="display">Paisagem sonora</h2>
+          <p>Nada de música: só a máquina. Latão, ferro e pedra, sintetizados em tempo real (Web Audio API) — cada etapa da construção tem sua voz, e o ronco do motor segue a velocidade do scroll.</p>
+        </div>
+        <SoundBoard />
       </section>
     </main>
   )
