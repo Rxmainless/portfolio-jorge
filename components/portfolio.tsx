@@ -475,6 +475,10 @@ function SectionBody({ id, copy }: { id: House['section']; copy: Copy }) {
           <ul className="projects stagger-in">
             {copy.projects.map((p) => (
               <li key={p.id} className="project">
+                {p.image && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className="project-shot" src={p.image.src} alt={p.image.alt} width={1280} height={800} loading="lazy" decoding="async" />
+                )}
                 <div className="project-top">
                   <h3>{p.name}</h3>
                   {p.status && <span className="status">{p.status}</span>}

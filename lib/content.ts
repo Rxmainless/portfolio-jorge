@@ -15,6 +15,8 @@ export interface Project {
   stack: string[]
   links: { label: string; url: string }[]
   status: string
+  /** Captura de tela real do projeto (1280×800). */
+  image?: { src: string; alt: string }
 }
 
 export interface SkillItem {
@@ -102,6 +104,7 @@ const projects = (l: Locale): Project[] => {
     },
     {
       id: 'dash-digital',
+      image: { src: '/projects/dash-digital.jpg', alt: pt ? 'Página do Dash Digital: o ecossistema de tecnologia do Porto Digital em números' : 'Dash Digital page: the Porto Digital tech ecosystem in numbers' },
       name: 'Dash Digital',
       kind: pt ? 'Dados · ETL · Dashboard' : 'Data · ETL · Dashboard',
       summary: pt
@@ -116,6 +119,7 @@ const projects = (l: Locale): Project[] => {
     },
     {
       id: 'lumen',
+      image: { src: '/projects/lumen.jpg', alt: pt ? 'Lumen: trilha de aprendizado com dez algoritmos de busca e ordenação' : 'Lumen: learning path with ten search and sorting algorithms' },
       name: 'Lumen — Algorithm Lab',
       kind: pt ? 'Educação · Visualização' : 'Education · Visualization',
       summary: pt
@@ -158,6 +162,7 @@ const projects = (l: Locale): Project[] => {
     },
     {
       id: 'skill-map',
+      image: { src: '/projects/skill-map.jpg', alt: pt ? 'Skill Map 3D: mapa com oito cidades de habilidades à espera da construção' : 'Skill Map 3D: map with eight skill cities waiting to be built' },
       name: 'Skill Map 3D',
       kind: pt ? '3D · Animação mecânica' : '3D · Mechanical animation',
       summary: pt

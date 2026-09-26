@@ -102,6 +102,8 @@
 .raven-link + .raven-link { margin-top: 0.4rem; }
 .projects { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; }
 .project { border: 1px solid var(--line); padding: 1rem 1.1rem; display: grid; gap: 0.45rem; background: rgba(217, 204, 174, 0.025); }
+.project-shot { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border: 1px solid var(--line); margin-bottom: 0.35rem; filter: sepia(0.35) saturate(0.8) brightness(0.82); transition: filter 0.4s; }
+.project:hover .project-shot { filter: none; }
 .project-top { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
 .project h3 { font: 600 1.08rem var(--display); letter-spacing: 0.06em; }
 .status { font: 9.5px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--c); border: 1px solid var(--line-strong); padding: 2px 6px; white-space: nowrap; }
