@@ -25,6 +25,8 @@ export function Portfolio() {
   const [locale, setLocale] = useState<Locale>('pt-BR')
   const [menuOpen, setMenuOpen] = useState(false)
   const [realm, setRealm] = useState<RealmScene | null>(null)
+  // Sem WebGL: página plana, só o conteúdo, com os sigilos já revelados
+  const [flat, setFlat] = useState(false)
   const [builds, setBuilds] = useState<number[]>(() => houses.map(() => 0))
   const copy = getCopy(locale)
   const rootRef = useRef<HTMLElement>(null)
@@ -100,6 +102,11 @@ export function Portfolio() {
   const onReady = useCallback((scene: RealmScene) => {
     setRealm(scene)
     if (process.env.NODE_ENV !== 'production') Object.assign(window, { __realm: scene, __gsap: gsap, __ST: ScrollTrigger }) // validação
+  }, [])
+
+  const onNoWebGL = useCallback(() => {
+    setFlat(true)
+    setBuilds(houses.map(() => 1))
   }, [])
 
   // ———————————————————————————————— coreografia de scroll (GSAP ScrollTrigger)
@@ -230,9 +237,9 @@ export function Portfolio() {
   const builtCount = builds.filter((b) => b >= 1).length
 
   return (
-    <main className="realm grain" ref={rootRef}>
+    <main className={flat ? "realm grain is-flat" : "realm grain"} ref={rootRef}>
       <div className="realm-stage">
-        <RealmCanvas className="realm-canvas" options={{ mode: 'journey', panelSide: SIDES }} onReady={onReady} label={copy.canvasAlt} />
+        <RealmCanvas className="realm-canvas" options={{ mode: 'journey', panelSide: SIDES }} onReady={onReady} onError={onNoWebGL} label={copy.canvasAlt} />
         <div className="realm-vignette" />
         <div className="map-labels" aria-hidden="true">
           {houses.map((h, i) => (
@@ -251,7 +258,7 @@ export function Portfolio() {
         </div>
       </div>
 
-      <div className={`realm-loading ${realm ? 'is-done' : ''}`} aria-hidden={!!realm}>
+      <div className={`realm-loading ${realm || flat ? 'is-done' : ''}`} aria-hidden={!!realm || flat}>
         <span className="eyebrow">{copy.loading}</span>
         <span className="loading-bar">░▒▓█▓▒░</span>
       </div>

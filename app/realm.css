@@ -162,3 +162,10 @@
 .mixer-row input[type='range']::-moz-range-thumb { width: 10px; height: 10px; border-radius: 0; background: var(--obsidian); border: 1px solid var(--ember); transform: rotate(45deg); }
 .mixer-row input[type='range']:focus-visible { outline: 1px solid var(--ember); outline-offset: 3px; }
 @media (max-width: 520px) { .mixer-panel { position: fixed; right: 12px; left: 12px; width: auto; top: 58px; } .mixer-panel::before { display: none; } }
+
+/* Sem WebGL: sem mapa 3D, as seções viram uma página comum */
+.is-flat .realm-stage { background: radial-gradient(ellipse at 60% 30%, #2a241b 0%, var(--obsidian) 70%); }
+.is-flat .house-section { height: auto; }
+.is-flat .house-sticky { position: relative; height: auto; min-height: 0; padding-top: 12vh; padding-bottom: 12vh; pointer-events: auto; }
+.is-flat .machine-hud, .is-flat .map-labels { display: none; }
+.is-flat .house-panel { visibility: visible; width: min(620px, 100%); max-height: none; }

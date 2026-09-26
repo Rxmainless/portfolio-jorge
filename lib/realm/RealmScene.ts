@@ -74,13 +74,20 @@ export class RealmScene {
   private readonly prevCam = new THREE.Vector3()
   private readonly reduced: boolean
   private readonly tmp = new THREE.Vector3()
+  // Qualidade adaptativa: resolução e sombras caem se o aparelho não sustenta ~40 fps
+  private pixelRatio: number
+  private perfAcc = 0
+  private perfFrames = 0
+  private perfWarmup = 3
   private readonly onPointer = (e: PointerEvent) => this.pointer.set((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1)
   private readonly tick = (_t: number, dms: number) => this.frame(Math.min(dms / 1000, 0.1))
 
   constructor(private readonly container: HTMLElement, private readonly opts: RealmSceneOptions) {
     this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', stencil: true })
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, opts.mode === 'preview' ? 1.5 : 1.75))
+    const coarse = window.matchMedia('(pointer: coarse)').matches
+    this.pixelRatio = Math.min(window.devicePixelRatio, opts.mode === 'preview' || coarse ? 1.5 : 1.75)
+    this.renderer.setPixelRatio(this.pixelRatio)
     this.renderer.shadowMap.enabled = true
     this.renderer.shadowMap.type = THREE.PCFShadowMap
     this.renderer.shadowMap.autoUpdate = false
@@ -294,10 +301,16 @@ export class RealmScene {
 
   // ———————————————————————————————————————— loop
 
+  /** Estado atual da qualidade adaptativa (para inspeção). */
+  get quality(): { pixelRatio: number; shadows: boolean } {
+    return { pixelRatio: this.pixelRatio, shadows: this.renderer.shadowMap.enabled }
+  }
+
   private frame(dt: number): void {
     if (!this.visible) return
     this.time += dt
     this.frameCount++
+    this.watchPerformance(dt)
 
     // Suavização da câmera (scroll com scrub) + paralaxe discreta do ponteiro
     const k = 1 - Math.exp(-dt * (this.reduced ? 30 : 5))
@@ -365,6 +378,33 @@ export class RealmScene {
     this.prevCam.copy(this.camera.position)
     this.sound!.setActivity(machine, Math.min(1, camSpeed / 60))
     this.sound!.setBuildLevels(this.builds.map((b) => b.progress))
+  }
+
+  /** Média de 90 quadros acima de 25 ms: um degrau de resolução; no mínimo, sem sombras. */
+  private watchPerformance(dt: number): void {
+    if (this.time < this.perfWarmup || dt >= 0.1) return
+    this.perfAcc += dt
+    if (++this.perfFrames < 90) return
+    const avg = this.perfAcc / this.perfFrames
+    this.perfAcc = 0
+    this.perfFrames = 0
+    if (avg <= 1 / 40) return
+    this.perfWarmup = this.time + 1.5
+    if (this.pixelRatio > 1) {
+      this.pixelRatio = Math.max(1, this.pixelRatio - 0.25)
+      this.renderer.setPixelRatio(this.pixelRatio)
+      this.resize()
+    } else if (this.pixelRatio > 0.75 && !this.renderer.shadowMap.enabled) {
+      this.pixelRatio = 0.75
+      this.renderer.setPixelRatio(this.pixelRatio)
+      this.resize()
+    } else if (this.renderer.shadowMap.enabled) {
+      this.renderer.shadowMap.enabled = false
+      this.scene.traverse((o) => {
+        const m = (o as THREE.Mesh).material
+        if (m) (Array.isArray(m) ? m : [m]).forEach((x) => (x.needsUpdate = true))
+      })
+    }
   }
 
   private resize(): void {
