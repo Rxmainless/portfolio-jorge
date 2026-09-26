@@ -1,5 +1,5 @@
 /**
- * Efeitos sonoros sintetizados (Web Audio API) — nenhum arquivo de áudio,
+ * Efeitos sonoros sintetizados (Web Audio API), sem arquivo de áudio:
  * tudo gerado em tempo real e original. Cada função agenda sons a partir do
  * instante `t` num contexto qualquer (inclusive OfflineAudioContext, usado
  * para validar que cada efeito produz som).

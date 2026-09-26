@@ -1,4 +1,4 @@
-/* ————————————————————————————————————————————— portfólio: o reino */
+/* Portfólio: o reino */
 .realm { position: relative; }
 .realm-stage { position: fixed; inset: 0; z-index: 0; }
 .realm-canvas { position: absolute; inset: 0; }
@@ -54,7 +54,7 @@
 .cover-meta { position: absolute; left: 3.2vw; right: 3.2vw; bottom: 26px; display: flex; justify-content: space-between; font: 10.5px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
 .cue { color: var(--parchment); animation: forge 2.4s ease-in-out infinite; }
 
-/* Seções das casas: 240vh — a câmera voa, depois a cidade é construída */
+/* Seções das casas (240vh): a câmera voa e depois a cidade é construída */
 .house-section { position: relative; z-index: 2; height: 240vh; }
 .house-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; padding: 84px 3.2vw 64px; pointer-events: none; }
 .side-right .house-sticky { justify-content: flex-end; }

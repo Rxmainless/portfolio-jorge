@@ -1,7 +1,7 @@
 import type { SigilId } from './realm-data'
 
 /**
- * Sigilos em ASCII — arte original, desenhada à mão para este portfólio.
+ * Sigilos em ASCII: arte original, desenhada à mão para este portfólio.
  * Cada um cabe numa grade de ~26×13 caracteres monoespaçados.
  */
 export const sigils: Record<SigilId, string> = {

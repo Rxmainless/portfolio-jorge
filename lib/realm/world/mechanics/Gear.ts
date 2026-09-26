@@ -29,7 +29,7 @@ export function gearGeometry(spec: GearSpec): THREE.ExtrudeGeometry {
   const shape = new THREE.Shape();
   const pt = (r: number, a: number) => new THREE.Vector2(Math.cos(a) * r, Math.sin(a) * r);
   for (let i = 0; i < z; i++) {
-    const a = i * p; // dente i centrado em a — o dente 0 fica em 0 rad (usado no cálculo de fase)
+    const a = i * p; // dente i centrado em a; o dente 0 fica em 0 rad (usado no cálculo de fase)
     const pts = [pt(rootR, a - 0.3 * p), pt(outerR, a - 0.13 * p), pt(outerR, a + 0.13 * p), pt(rootR, a + 0.3 * p), pt(rootR, a + 0.5 * p)];
     pts.forEach((v, j) => (i === 0 && j === 0 ? shape.moveTo(v.x, v.y) : shape.lineTo(v.x, v.y)));
   }
@@ -88,7 +88,7 @@ function fullGearGeometry(spec: GearSpec, hubR: number): THREE.BufferGeometry {
   g.add(mesh(gearGeometry(spec), materials.steel));
   const hub = mesh(cylinder(hubR, hubR, spec.thickness * 1.5, 18), materials.steel);
   hub.rotation.x = Math.PI / 2;
-  // Marcador radial no cubo — torna a rotação legível mesmo em engrenagens pequenas.
+  // Marcador radial no cubo: torna a rotação legível mesmo em engrenagens pequenas.
   const mark = mesh(box(hubR * 0.9, hubR * 0.3, spec.thickness * 1.6), materials.steel);
   mark.position.x = hubR * 0.5;
   g.add(hub, mark);

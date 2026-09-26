@@ -24,7 +24,7 @@ export const DECK_START_Y = -(HULL_H + DECK_T);
  *
  * Tudo começa aninhado dentro da plataforma, no fundo do poço:
  *   deck ⊃ fundação ⊃ núcleo(s0 ⊃ s1 ⊃ … ⊃ agulha) + satélites + conectores
- * Cada peça sai fisicamente de dentro da peça que a contém — por um furo,
+ * Cada peça sai fisicamente de dentro da peça que a contém: por um furo,
  * uma fenda ou de dentro da seção anterior.
  *
  * Para trocar por GLTF: substitua o conteúdo de qualquer grupo registrado em
@@ -37,7 +37,7 @@ export class SkillCity {
   readonly roofGears: Gear[] = [];
   readonly plan: StagePlan = { deck: 'deck', foundation: 'foundation', core: [], satellites: [], connectors: [], latches: [] };
   readonly deckHalf: number;
-  /** Altura final do topo da cidade (acima do solo) — usada pela câmera. */
+  /** Altura final do topo da cidade (acima do solo), usada pela câmera. */
   readonly topHeight: number;
 
   constructor(readonly bp: Blueprint, anchors: THREE.Vector3[], readonly windowMaterial: THREE.MeshStandardMaterial, readonly accentMaterial: THREE.MeshStandardMaterial) {

@@ -8,7 +8,7 @@ const deg = THREE.MathUtils.degToRad;
 /**
  * Casa de máquinas: parede de engrenagens que aciona o canteiro.
  * Plano das engrenagens = XY local, voltado para +Z.
- * `stages` (1–3) controla quantos estágios de redução existem — cidades mais
+ * `stages` (1–3) controla quantos estágios de redução existem; cidades mais
  * complexas têm trens de engrenagem maiores.
  */
 export class EngineBlock extends THREE.Group {

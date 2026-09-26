@@ -11,7 +11,7 @@ const KEY_OFFSET = new THREE.Vector3(-14, 22, 12);
 export function createLighting(scene: THREE.Scene): SceneLights {
   const ambient = new THREE.AmbientLight(0x8a8f99, 0.35);
 
-  // Luz principal quente, rasante — dá leitura de volume às peças metálicas.
+  // Luz principal quente e rasante: dá leitura de volume às peças metálicas.
   const key = new THREE.DirectionalLight(0xffe2bf, 2.6);
   key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048);
@@ -32,7 +32,7 @@ export function createLighting(scene: THREE.Scene): SceneLights {
 
 /**
  * Concentra o frustum de sombra onde a câmera está olhando: resolução alta
- * numa cidade, cobertura ampla no mapa — com um único shadow map.
+ * numa cidade, cobertura ampla no mapa, tudo com um único shadow map.
  */
 export function focusShadow(lights: SceneLights, center: THREE.Vector3, radius: number): void {
   const { key } = lights;

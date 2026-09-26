@@ -46,7 +46,7 @@ export interface ConstructionHooks {
 }
 
 /**
- * Timeline de construção gerada a partir do StagePlan da cidade — a mesma
+ * Timeline de construção gerada a partir do StagePlan da cidade. A mesma
  * função constrói qualquer skill.
  *
  *   ENGRENAGENS → MECANISMO ATIVA → CABOS TENSIONAM → (escotilha) →
@@ -69,21 +69,21 @@ export function buildConstructionTimeline(site: SkillSite, hooks: ConstructionHo
     }, undefined, at);
   };
 
-  // 1 — ENGRENAGENS: a casa de máquinas acelera até a velocidade de regime
+  // 1. ENGRENAGENS: a casa de máquinas acelera até a velocidade de regime
   stage('gears', 0, 'gearStart');
   const spinUp = 2.2;
   tl.fromTo(s, { drive: 0 }, { drive: (OMEGA * spinUp) / 2, duration: spinUp, ease: 'power2.in' }, 0);
 
-  // 2 — MECANISMO ATIVA: lâmpadas acendem em sequência, freios liberam
+  // 2. MECANISMO ATIVA: lâmpadas acendem em sequência, freios liberam
   stage('mechanism', 1.8, 'mechanismActivate');
   tl.to(s, { lamps: 1, duration: 0.6, ease: 'steps(3)' }, 1.8);
   site.winches.forEach((_, i) => travel(tl, P(`brake-${i}`), 2.1 + i * 0.18, 0.35, 'power2.out', 0.02));
 
-  // 3 — CABOS TENSIONAM: folga → tensão, com vibração amortecida
+  // 3. CABOS TENSIONAM: folga → tensão, com vibração amortecida
   stage('cables', 3.0, 'cablesTension');
   tl.fromTo(s, { slack: 1 }, { slack: 0, duration: 1.4, ease: 'elastic.out(1, 0.45)' }, 3.0);
 
-  // 3b — escotilha destrava (desce) e desliza para dentro do terreno
+  // 3b. escotilha destrava (desce) e desliza para dentro do terreno
   stage('hatch', 4.3, 'hatchOpen');
   for (const id of ['door-left', 'door-right']) {
     const p = P(id);
@@ -93,7 +93,7 @@ export function buildConstructionTimeline(site: SkillSite, hooks: ConstructionHo
   }
   tl.to(s, { shaftLight: 1, markers: 1, duration: 1.4, ease: 'power1.in' }, 4.5);
 
-  // 4 — PLATAFORMA SOBE: os quatro guinchos recolhem cabo
+  // 4. PLATAFORMA SOBE: os quatro guinchos recolhem cabo
   stage('platform', 6.3, 'platformRise');
   const platformDur = 5.2;
   const platformEnd = travel(tl, P(plan.deck), 6.3, platformDur, 'power2.inOut', 0.08);
@@ -103,11 +103,11 @@ export function buildConstructionTimeline(site: SkillSite, hooks: ConstructionHo
   }, undefined, 6.3 + platformDur);
   tl.to(s, { shaftLight: 0, duration: 0.8 }, 6.3 + platformDur);
 
-  // 5 — FUNDAÇÃO SOBE pelo vão do deck
+  // 5. FUNDAÇÃO SOBE pelo vão do deck
   stage('foundation', platformEnd + 0.2, 'foundationRise');
   const foundationEnd = travel(tl, P(plan.foundation), platformEnd + 0.2, 2.0, 'power2.inOut', 0.05);
 
-  // 6 — TORRE SOBE: seções telescópicas, uma saindo de dentro da outra
+  // 6. TORRE SOBE: seções telescópicas, uma saindo de dentro da outra
   stage('tower', foundationEnd + 0.15, 'towerRise');
   let t = foundationEnd + 0.15;
   plan.core.forEach((id, i) => {
@@ -117,7 +117,7 @@ export function buildConstructionTimeline(site: SkillSite, hooks: ConstructionHo
   });
   const towerEnd = t + 0.1;
 
-  // 7 — EDIFÍCIOS SOBEM (escalonados), depois conectores sobem/deslizam e travam
+  // 7. EDIFÍCIOS SOBEM (escalonados), depois conectores sobem/deslizam e travam
   stage('buildings', towerEnd + 0.1, 'buildingsRise');
   const stagger = Math.min(0.55, 2.2 / Math.max(1, plan.satellites.length));
   let bEnd = towerEnd;
@@ -135,7 +135,7 @@ export function buildConstructionTimeline(site: SkillSite, hooks: ConstructionHo
     cEnd = Math.max(cEnd, travel(tl, P(id), latchStart + (i % 2) * 0.06, 0.35, 'power2.out', 0.01));
   });
 
-  // 8 — CIDADE COMPLETA: janelas acendem, máquina desacelera
+  // 8. CIDADE COMPLETA: janelas acendem, máquina desacelera
   const done = cEnd + 0.2;
   tl.to(s, { windows: 1, duration: 1.2, ease: 'power1.inOut' }, done - 0.4);
   stage('complete', done, 'cityComplete');

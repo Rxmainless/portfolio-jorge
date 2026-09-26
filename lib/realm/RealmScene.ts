@@ -41,7 +41,7 @@ function houseToConfig(h: House): SkillCityConfig {
 /**
  * Cena do reino. No modo "journey" nada anda sozinho além da máquina ociosa:
  * câmera e construção são funções da posição de scroll (GSAP ScrollTrigger),
- * então rolar para cima desmonta — a animação é reversível e determinística.
+ * então rolar para cima desmonta: a animação é reversível e determinística.
  */
 /** SwiftShader, llvmpipe e afins: WebGL emulado na CPU. */
 function isSoftwareRenderer(renderer: THREE.WebGLRenderer): boolean {
@@ -162,7 +162,7 @@ export class RealmScene {
     gsap.ticker.add(this.tick)
   }
 
-  // ———————————————————————————————————————— API da jornada (scroll)
+  // API da jornada (scroll)
 
   get stopCount(): number {
     return this.stops.length
@@ -248,7 +248,7 @@ export class RealmScene {
     return { x: (this.tmp.x * 0.5 + 0.5) * r.width, y: (-this.tmp.y * 0.5 + 0.5) * r.height, visible: this.tmp.z < 1 && Math.abs(this.tmp.x) < 1.1 && Math.abs(this.tmp.y) < 1.1 }
   }
 
-  // ———————————————————————————————————————— câmera
+  // Câmera
 
   private computeStops(): Pose[] {
     const wide = this.camera.aspect < 1
@@ -295,7 +295,7 @@ export class RealmScene {
     }
   }
 
-  // ———————————————————————————————————————— prévia (moodboard)
+  // Prévia (moodboard)
 
   private startPreviewLoop(): void {
     const b = this.builds[0]
@@ -310,7 +310,7 @@ export class RealmScene {
     })
   }
 
-  // ———————————————————————————————————————— loop
+  // Loop
 
   /** Estado atual da qualidade adaptativa (para inspeção). */
   get quality(): { pixelRatio: number; shadows: boolean } {

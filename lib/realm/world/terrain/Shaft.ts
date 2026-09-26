@@ -21,7 +21,7 @@ export interface ShaftOptions {
 export class Shaft extends THREE.Group {
   readonly doorLeft = new THREE.Group();
   readonly doorRight = new THREE.Group();
-  /** Paredes, trilhos e marcadores — só visíveis com a escotilha aberta. */
+  /** Paredes, trilhos e marcadores, só visíveis com a escotilha aberta. */
   readonly interior: THREE.Group;
 
   constructor(readonly opts: ShaftOptions) {

@@ -4,7 +4,7 @@ import { rectCorners, type RectHole } from '../geometry';
 /**
  * Blueprint: descrição puramente geométrica de uma cidade, derivada dos dados.
  * Coordenadas no frame da fundação (y=0 = topo da fundação).
- * O construtor (SkillCity) e a timeline não conhecem arquétipos — só blueprints.
+ * O construtor (SkillCity) e a timeline não conhecem arquétipos, só blueprints.
  */
 export interface CoreSpec {
   shape: 'box' | 'cyl';
@@ -58,7 +58,7 @@ function coreSections(base: number, count: number, h: number, shrink = 0.76): { 
 type Layout = Omit<Blueprint, 'foundation'>;
 
 const layouts: Record<CityArchetype, (c: number) => Layout> = {
-  // Python — módulos empilhados ligados ao núcleo por dutos
+  // Python: módulos empilhados ligados ao núcleo por dutos
   pipeline: (c) => ({
     core: { shape: 'box', sections: coreSections(1.6, Math.min(3, 1 + Math.ceil(c / 2)), 3.4), spire: true },
     satellites: [
@@ -73,7 +73,7 @@ const layouts: Record<CityArchetype, (c: number) => Layout> = {
     ],
   }),
 
-  // TypeScript — grade 2×2 de módulos iguais com contratos (pontes) entre vizinhos
+  // TypeScript: grade 2×2 de módulos iguais com contratos (pontes) entre vizinhos
   modular: (c) => {
     const s = 2.1;
     const h = 2.4 + c * 0.15;
@@ -90,7 +90,7 @@ const layouts: Record<CityArchetype, (c: number) => Layout> = {
     };
   },
 
-  // React — unidades idênticas repetidas em anel
+  // React: unidades idênticas repetidas em anel
   component: (c) => {
     const n = 6;
     const r = 2.55;
@@ -106,7 +106,7 @@ const layouts: Record<CityArchetype, (c: number) => Layout> = {
     };
   },
 
-  // SQL — silos de armazenamento + lajes empilhadas, fluxos entre eles
+  // SQL: silos de armazenamento + lajes empilhadas, fluxos entre eles
   storage: (c) => ({
     core: { shape: 'box', sections: coreSections(2.0, 2, 1.8, 0.82), spire: false },
     satellites: [
@@ -122,7 +122,7 @@ const layouts: Record<CityArchetype, (c: number) => Layout> = {
     ],
   }),
 
-  // Git — tronco com ramificações em alturas diferentes
+  // Git: tronco com ramificações em alturas diferentes
   branching: (c) => ({
     core: { shape: 'box', sections: coreSections(1.1, Math.min(4, 2 + Math.floor(c / 2)), 3.0, 0.8), spire: true },
     satellites: [
@@ -139,7 +139,7 @@ const layouts: Record<CityArchetype, (c: number) => Layout> = {
     ],
   }),
 
-  // ETL — entrada → transformação → saída, em linha
+  // ETL: entrada → transformação → saída, em linha
   flow: (c) => ({
     core: { shape: 'box', sections: coreSections(1.6, 2, 2.6, 0.75), spire: false },
     satellites: [
@@ -154,7 +154,7 @@ const layouts: Record<CityArchetype, (c: number) => Layout> = {
     ],
   }),
 
-  // Testing — portais de validação ao redor do núcleo
+  // Testing: portais de validação ao redor do núcleo
   checkpoint: (c) => ({
     core: { shape: 'box', sections: coreSections(1.2, 2 + Math.min(1, c - 1), 2.8, 0.75), spire: true },
     satellites: [
@@ -168,7 +168,7 @@ const layouts: Record<CityArchetype, (c: number) => Layout> = {
     connectors: [],
   }),
 
-  // Farol — uma torre muito alta (o saber que ilumina) cercada por salões baixos
+  // Farol: uma torre muito alta (o saber que ilumina) cercada por salões baixos
   beacon: (c) => {
     const s = 2.45;
     const hall = (x: number, z: number): SatelliteSpec => ({ x, z, w: 1.25, d: 1.25, h: 1.5, tiers: 2, shape: 'box' });
@@ -182,7 +182,7 @@ const layouts: Record<CityArchetype, (c: number) => Layout> = {
     };
   },
 
-  // System Design — vários sistemas interconectados em malha
+  // System Design: vários sistemas interconectados em malha
   network: (c) => {
     const s = 2.55;
     const sat = (x: number, z: number, h: number): SatelliteSpec => ({ x, z, w: 1.15, d: 1.15, h, tiers: 3, shape: 'box' });

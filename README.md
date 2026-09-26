@@ -1,79 +1,90 @@
-# O Reino dos Sistemas — portfólio de Jorge Mesquita
+# O Reino dos Sistemas
 
-Portfólio em Next.js com tema inspirado em **Game of Thrones + ASCII goth**.
-Cada tela é uma casa; cada casa tem uma cidade que uma máquina de latão
-constrói, torre por torre, conforme o scroll (GSAP ScrollTrigger).
+Portfólio de Jorge Mesquita, estudante de ADS (Senac) e Engenharia de Software (UNIFG).
+
+O tema é uma homenagem a Game of Thrones com estética ASCII goth. Cada seção do
+portfólio é uma casa do continente, e cada casa tem uma cidade que uma máquina de
+latão constrói conforme a página rola: engrenagens, cabos, plataforma, fundação,
+torre e edifícios. Rolar para cima desmonta tudo na ordem inversa.
+
+Versões: português em `/`, inglês em `/en`. O moodboard da identidade visual fica
+em `/moodboard`.
+
+## Rodar
 
 ```bash
 pnpm install
-pnpm dev        # http://localhost:3000   ·   moodboard em /moodboard
-pnpm build
+pnpm dev          # http://localhost:3000
+pnpm build        # site estático em out/
+pnpm test         # testes unitários (Vitest)
+pnpm test:e2e     # testes no navegador (Playwright), depois do build
 ```
 
-## Telas
+Node 22 ou mais novo e pnpm 11.
 
-| Tela | Casa · sede | Conteúdo |
+## Seções
+
+| Seção | Casa e sede | Conteúdo |
 |---|---|---|
-| Capa | o continente inteiro | abertura: voo sobre o mapa, título forjado |
-| Perfil | Stark · Winterfell | quem sou |
-| Formação | Hightower · Vilavelha | ADS (Senac, via Embarque Digital) e Engenharia de Software (UNIFG) |
-| Cursos | Tyrell · Jardim de Cima | Cisco *Digital Safety and Security Awareness*, idiomas (Duolingo), linguagens (The Odin Project) |
-| Habilidades | Lannister · Rochedo Casterly | tecnologias + onde foram usadas |
-| Projetos | Targaryen · Pedra do Dragão | Dash Digital, Lumen, ONDA, RadarPME, Skill Map 3D |
-| Contato | Patrulha da Noite · Castelo Negro | GitHub / e-mail |
+| Capa | o continente inteiro | voo de abertura sobre o mapa |
+| Perfil | Stark, Winterfell | apresentação, foco em backend, idiomas |
+| Formação | Hightower, Vilavelha | ADS (Senac, via Embarque Digital) e Engenharia de Software (UNIFG) |
+| Cursos | Tyrell, Jardim de Cima | Cisco *Digital Safety and Security Awareness*, idiomas (Duolingo), linguagens (The Odin Project) |
+| Habilidades | Lannister, Rochedo Casterly | tecnologias e os projetos onde cada uma foi usada |
+| Projetos | Targaryen, Pedra do Dragão | Desafio Itaú, Dash Digital, Lumen, ONDA, RadarPME, Spotify UX, Skill Map 3D |
+| Contato | Patrulha da Noite, Castelo Negro | GitHub, LinkedIn e e-mail |
 
-## Estrutura
+## Como funciona
 
-```
-app/
-  page.tsx, layout.tsx      fontes (Cinzel, Cormorant Garamond, JetBrains Mono)
-  moodboard/                moodboard (cores, tipografia, identidade, personalidade)
-  globals.css, realm.css    tokens do reino e estilos
-components/
-  portfolio.tsx             telas + coreografia GSAP (ScrollTrigger, SplitText, ScrollTo)
-  moodboard.tsx
-  realm-canvas.tsx          monta a cena 3D só no cliente
-  ascii-sigil.tsx           sigilos ASCII animados
-lib/
-  content.ts                TODO o texto (PT/EN) — só fatos verificáveis
-  realm-data.ts             casas: sede, lema, cores, posição, arquétipo
-  sigils.ts, sigil-canvas.ts
-  realm/                    motor 3D (vem do projeto Skill Map 3D)
-    RealmScene.ts           câmera guiada pelo scroll + construção reversível
-    world/…                 engrenagens, cabos, guinchos, cidades, continente, estandartes
-```
-
-## Som e trilha
-
-**Trilha adaptativa original — "Tema do Reino"** (ré menor, 72 bpm, 4/4,
-Dm–B♭–Gm–A). Cada casa construída acrescenta uma camada: pedal grave (sempre) →
-violoncelo (Winterfell) → tambores (Vilavelha) → harpa (Jardim de Cima) →
-metais (Rochedo Casterly) → coro (Pedra do Dragão) → melodia solo e sinos
-(Castelo Negro). No epílogo, o reino completo soa como a orquestra completa;
-rolar de volta tira as camadas. Composição própria — não usa nem imita a música
-oficial da série.
-
-Todos os sons são sintetizados em tempo real (Web Audio API) — nenhum arquivo
-de áudio. Cada etapa da construção tem seu efeito; o ronco do motor e os cliques
-de dente seguem a velocidade do scroll; rolar para cima rebobina. O som só liga
-pelo botão **Som** (exigência de autoplay dos navegadores) e a preferência fica
-salva. Ouça o tema e cada efeito isolado em `/moodboard` → Paisagem sonora.
+- **Scroll:** GSAP ScrollTrigger com scrub leva a câmera até cada sede e controla a
+  construção da cidade. SplitText anima os títulos e ScrollToPlugin cuida do menu.
+- **3D:** Three.js com um motor procedural próprio. Geometria estática fundida,
+  instâncias para peças repetidas e sombras atualizadas só quando algo muda.
+- **Qualidade adaptativa:** se o aparelho não sustenta cerca de 40 fps, a cena
+  desliga as sombras e reduz a resolução. Sem WebGL, ou no **modo leitura** (botão
+  na capa), a página mostra só o conteúdo.
+- **Som:** tudo sintetizado em tempo real com a Web Audio API, sem arquivos de
+  áudio. Cada etapa da construção tem um efeito, o motor acompanha a velocidade do
+  scroll e rolar para cima rebobina. O regulador no cabeçalho ajusta volume geral,
+  trilha e efeitos.
+- **Trilha:** "Tema do Reino", composição original em ré menor, 3/4, 84 bpm, com
+  ostinato de violoncelos, violinos em trêmulo, tambores de guerra, trompas, coro
+  e violino solo. Cada cidade construída acrescenta um naipe, e o reino completo
+  soa como a orquestra inteira.
 
 ```
-lib/realm/audio/sfx.ts         efeitos (tocam também em OfflineAudioContext)
-lib/realm/audio/score.ts       trilha adaptativa (compassos agendados; renderizável offline)
-lib/realm/audio/RealmAudio.ts  mixagem, reverb, trilha, motor/vento contínuos, limites anti-avalanche
+app/(pt)/                 página em português e moodboard
+app/(en)/en/              página em inglês
+app/site.ts               fontes, metadados e URL pública
+components/portfolio.tsx  seções e coreografia de scroll
+components/sound-mixer.tsx
+lib/content.ts            todo o texto (PT e EN)
+lib/realm-data.ts         casas: sede, lema, cores, posição no mapa
+lib/realm/                cena 3D, máquina, cidades, continente e áudio
+tests/unit/               trilha e efeitos renderizados offline, conteúdo
+tests/e2e/                jornada completa, sem WebGL, regulador, idiomas, 404
 ```
 
-## Conteúdo
+## Publicação (Cloudflare Pages)
 
-Todo o texto está em `lib/content.ts` (PT/EN), só com fatos verificáveis.
+O build gera um site estático em `out/`. No painel do Cloudflare: Workers & Pages,
+Create, Pages, Connect to Git, e escolher este repositório.
 
-## Créditos e direitos
+| Configuração | Valor |
+|---|---|
+| Framework preset | None |
+| Build command | `pnpm build` |
+| Build output directory | `out` |
+| Variável `SITE_URL` | o endereço final, por exemplo `https://portfolio-jorge.pages.dev` |
 
-Homenagem inspirada em Game of Thrones (HBO / George R. R. Martin). Casas,
-sedes e lemas curtos são referências temáticas. Sigilos ASCII, mapa, cidades,
-animações e código são originais. Nenhum logotipo, imagem, fonte ou música
-oficial é utilizado.
+A versão do Node vem de `.node-version`. Cabeçalhos de cache e segurança ficam em
+`public/_headers`. O GitHub Actions roda typecheck, testes e build a cada push.
+
+## Créditos
+
+Homenagem inspirada em Game of Thrones (HBO, George R. R. Martin). Nomes de casas,
+sedes e lemas curtos são referências ao tema. Sigilos ASCII, mapa, cidades,
+animações, trilha e código são originais. Nenhum logotipo, imagem, fonte ou música
+oficial da série é usado.
 
 Avaliação pelos critérios da atividade: [AVALIACAO.md](AVALIACAO.md).

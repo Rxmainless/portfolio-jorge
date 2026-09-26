@@ -1,5 +1,5 @@
 /**
- * Trilha adaptativa original — "Tema do Reino".
+ * Trilha adaptativa original: "Tema do Reino".
  * Ré menor, 84 bpm, 3/4, forma de 16 compassos:
  *   A: Dm Dm B♭ C | Dm Dm Gm A     B: F C Dm B♭ | Gm Dm E♭ A
  * Linguagem de abertura de série épica: ostinato galopante de violoncelos,
@@ -59,7 +59,7 @@ const MIX: Record<Layer, number> = { drone: 0.35, cello: 0.6, drums: 0.32, violi
 /** Tambores em semicolcheias (12 por compasso): 1 taiko grave, 2 tambor médio, 3 caixa de moldura. */
 const DRUMS = [1, 0, 0, 3, 2, 0, 1, 0, 2, 0, 3, 3]
 
-// ————————————————————————————————————————————— instrumentos
+// Instrumentos
 
 function osc(ctx: Ctx, type: OscillatorType, freq: number, t: number, end: number, detune = 0): OscillatorNode {
   const o = ctx.createOscillator()
@@ -249,7 +249,7 @@ export function scheduleBar(ctx: Ctx, dest: Record<Layer, AudioNode>, bar: numbe
   }
 
   if (active.violins) {
-    // Violinos em trêmulo que incham ao longo do compasso — tensão sombria
+    // Violinos em trêmulo que incham ao longo do compasso (tensão sombria)
     for (const n of chord.triad) {
       bowed(ctx, out.violins, n + 12, t, BAR * 0.96, { peak: 0.06, attack: BAR * 0.62, release: 0.45, bright: 4200, voices: 3, spread: 14, vibrato: 0.003, tremolo: 13 })
     }

@@ -2,8 +2,8 @@ import * as THREE from 'three';
 
 /**
  * Peça móvel da construção. Toda peça tem posição inicial (escondida /
- * recolhida) e posição final (montada). A animação move de uma para a outra —
- * nunca usa fade ou escala.
+ * recolhida) e posição final (montada). A animação move de uma para a outra
+ * e nunca usa fade ou escala.
  */
 export interface MechanicalPart {
   id: string;

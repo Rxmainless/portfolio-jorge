@@ -3,7 +3,7 @@ import { sigilLines } from './sigils'
 
 export interface SigilDrawOptions {
   color: string
-  /** 0..1 — fração de caracteres já "forjados". */
+  /** 0..1: fração de caracteres já "forjados". */
   reveal?: number
   /** Tempo (s) para cintilação. */
   time?: number
@@ -14,7 +14,7 @@ export interface SigilDrawOptions {
   fontFamily?: string
 }
 
-/** Hash determinístico por posição — ordem de revelação e cintilação estáveis. */
+/** Hash determinístico por posição: ordem de revelação e cintilação estáveis. */
 function h(x: number, y: number): number {
   let n = Math.imul(x, 374761393) + Math.imul(y, 668265263)
   n = Math.imul(n ^ (n >>> 13), 1274126177)

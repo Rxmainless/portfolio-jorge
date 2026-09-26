@@ -158,7 +158,7 @@ export class Continent extends THREE.Group {
     }
   }
 
-  // ————————————————————————————— regiões (Voronoi recortado pela terra)
+  // Regiões (Voronoi recortado pela terra)
 
   private buildRegions(centers: V2[]): void {
     const B = { minX: -140, maxX: 140, minZ: -140, maxZ: 140 }
@@ -206,7 +206,7 @@ export class Continent extends THREE.Group {
     this.add(border)
   }
 
-  // ————————————————————————————— estradas e rotas marítimas
+  // Estradas e rotas marítimas
 
   private gate(site: SkillSite, toward: V2): { gate: V2; out: V2 } {
     const c = new THREE.Vector2(site.position.x, site.position.z)
@@ -350,7 +350,7 @@ export class Continent extends THREE.Group {
     return [pts[0], ...mid, pts[pts.length - 1]]
   }
 
-  // ————————————————————————————— topografia
+  // Topografia
 
   private buildContours(): void {
     const levels = [2.5, 5.5, 8.5, 13]

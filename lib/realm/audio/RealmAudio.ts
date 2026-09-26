@@ -11,7 +11,7 @@ export interface RealmSoundSink {
   tick(intensity: number): void
   /** Níveis contínuos: máquina trabalhando e câmera em voo (0..1). */
   setActivity(machine: number, flight: number): void
-  /** Progresso de construção de cada cidade (0..1), na ordem das casas — conduz a trilha. */
+  /** Progresso de construção de cada cidade (0..1), na ordem das casas. Conduz a trilha. */
   setBuildLevels(progress: number[]): void
 }
 
@@ -105,7 +105,7 @@ export class RealmAudio implements RealmSoundSink {
     if (this.enabled && this.ctx) uiClick(this.ctx, this.sfx, this.ctx.currentTime)
   }
 
-  // ————————————————————————————————— RealmSoundSink
+  // RealmSoundSink
 
   stage(stageId: string, site = 0): void {
     const fx = STAGE_SFX[stageId]
@@ -174,7 +174,7 @@ export class RealmAudio implements RealmSoundSink {
     this.ctx = null
   }
 
-  // ————————————————————————————————— grafo
+  // Grafo
 
   private build(): void {
     const ctx = new AudioContext({ latencyHint: 'interactive' })

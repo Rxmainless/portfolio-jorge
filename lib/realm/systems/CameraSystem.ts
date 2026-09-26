@@ -72,7 +72,7 @@ export class CameraSystem {
 
   /**
    * Voo em arco: a câmera sobe no meio do trajeto (curva de Bézier quadrática)
-   * e desce sobre o destino — transmite a escala do território.
+   * e desce sobre o destino, para transmitir a escala do território.
    */
   flyArc(position: THREE.Vector3Tuple, target: THREE.Vector3Tuple, duration = 2.6, lift = 0.35): gsap.core.Timeline {
     this.cancelCinematic();

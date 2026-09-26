@@ -1,9 +1,7 @@
 /**
- * Conteúdo do portfólio. REGRA: só fatos verificáveis.
- * Fontes: textos do projeto original (perfil, formação), README do perfil e
- * repositórios públicos de github.com/Rxmainless, e os READMEs /
- * package.json dos projetos em D:\Projects (stacks, descrições, links).
- * O que ainda não foi informado aparece como "a forjar" — nunca inventado.
+ * Conteúdo do portfólio (PT e EN). Só fatos verificáveis: perfil e
+ * repositórios de github.com/Rxmainless, READMEs dos projetos e certificados.
+ * O que ainda não existe aparece como "a forjar".
  */
 export type Locale = 'pt-BR' | 'en'
 
@@ -93,7 +91,7 @@ const projects = (l: Locale): Project[] => {
   return [
     {
       id: 'desafio-itau',
-      name: 'Desafio Itaú — API de Transações',
+      name: 'Desafio Itaú: API de Transações',
       kind: pt ? 'Backend · API REST' : 'Backend · REST API',
       summary: pt
         ? 'API REST em Java/Spring Boot para o desafio técnico do Itaú Unibanco: registra transações e calcula em tempo real as estatísticas dos últimos 60 segundos, com validação, respostas HTTP corretas, Swagger e healthcheck.'
@@ -120,7 +118,7 @@ const projects = (l: Locale): Project[] => {
     {
       id: 'lumen',
       image: { src: '/projects/lumen.jpg', alt: pt ? 'Lumen: trilha de aprendizado com dez algoritmos de busca e ordenação' : 'Lumen: learning path with ten search and sorting algorithms' },
-      name: 'Lumen — Algorithm Lab',
+      name: 'Lumen Algorithm Lab',
       kind: pt ? 'Educação · Visualização' : 'Education · Visualization',
       summary: pt
         ? 'Laboratório interativo que visualiza o que o computador faz durante a execução: 6 algoritmos de ordenação, narrativa passo a passo, pilha de chamadas real, métricas ao vivo e som por ação.'
@@ -134,8 +132,8 @@ const projects = (l: Locale): Project[] => {
       name: 'ONDA Feedback',
       kind: pt ? 'Web · Segurança · Privacidade' : 'Web · Security · Privacy',
       summary: pt
-        ? 'Correio de feedbacks estudantis 100% anônimo, com painel administrativo para a representação responder e gerenciar — login com Argon2id + JWT, rate limiting e exportação CSV/JSON.'
-        : 'Fully anonymous student feedback inbox with an admin panel to reply and manage — Argon2id + JWT login, rate limiting and CSV/JSON export.',
+        ? 'Correio de feedbacks estudantis 100% anônimo, com painel administrativo para a representação responder e gerenciar. Login com Argon2id + JWT, rate limiting e exportação CSV/JSON.'
+        : 'Fully anonymous student feedback inbox with an admin panel to reply and manage. Argon2id + JWT login, rate limiting and CSV/JSON export.',
       stack: ['Next.js', 'TypeScript', 'Drizzle ORM', 'Zod', 'Cloudflare D1', 'Cloudflare KV'],
       links: [],
       status: '',
@@ -145,8 +143,8 @@ const projects = (l: Locale): Project[] => {
       name: 'RadarPME',
       kind: pt ? 'Dados · Automação' : 'Data · Automation',
       summary: pt
-        ? 'Identifica, enriquece e classifica PMEs brasileiras com sinais objetivos de presença digital deficiente, a partir dos dados públicos do CNPJ — gera uma fila de ação priorizada. Local e com custo operacional zero.'
-        : 'Finds, enriches and ranks Brazilian SMBs with objective signs of weak digital presence from public CNPJ data — producing a prioritized action queue. Local, zero operating cost.',
+        ? 'Identifica, enriquece e classifica PMEs brasileiras com sinais objetivos de presença digital deficiente, a partir dos dados públicos do CNPJ, e gera uma fila de ação priorizada. Local e com custo operacional zero.'
+        : 'Finds, enriches and ranks Brazilian SMBs with objective signs of weak digital presence from public CNPJ data, producing a prioritized action queue. Local, zero operating cost.',
       stack: ['Python', 'DuckDB', 'Streamlit', 'Playwright'],
       links: [],
       status: '',
@@ -166,8 +164,8 @@ const projects = (l: Locale): Project[] => {
       name: 'Skill Map 3D',
       kind: pt ? '3D · Animação mecânica' : '3D · Mechanical animation',
       summary: pt
-        ? 'Mapa 3D em que cada habilidade é uma cidade erguida por engrenagens, cabos e plataformas — a mesma máquina que constrói as torres deste portfólio.'
-        : 'A 3D map where each skill is a city raised by gears, cables and platforms — the same machine that builds the towers of this portfolio.',
+        ? 'Mapa 3D em que cada habilidade é uma cidade erguida por engrenagens, cabos e plataformas. É a mesma máquina que constrói as torres deste portfólio.'
+        : 'A 3D map where each skill is a city raised by gears, cables and platforms. It is the same machine that builds the towers of this portfolio.',
       stack: ['Three.js', 'GSAP', 'React', 'TypeScript', 'Vite'],
       links: [],
       status: pt ? 'Repositório privado' : 'Private repository',
@@ -202,7 +200,7 @@ export const copy = {
         { name: 'Análise e Desenvolvimento de Sistemas', institution: 'Faculdade Senac', detail: 'via Embarque Digital' },
         { name: 'Engenharia de Software', institution: 'UNIFG', detail: '1º ano de 4' },
       ],
-      note: 'Duas graduações ao mesmo tempo. Na Cidadela, cada meistre forja sua corrente elo a elo — a formação são os primeiros elos.',
+      note: 'Duas graduações ao mesmo tempo. Na Cidadela, cada meistre forja sua corrente elo a elo, e a formação são os primeiros elos.',
     },
     cursos: {
       title: 'Cursos',
@@ -235,7 +233,7 @@ export const copy = {
       linkedin: 'LinkedIn',
       email: 'E-mail',
     },
-    epilogue: { title: 'O reino está de pé', body: 'Seis casas, uma máquina. As habilidades não são uma lista: elas formam um sistema.', top: 'Voltar à capa', footer: 'Jorge Mesquita © 2026 · Homenagem inspirada em Game of Thrones — arte e código originais.' },
+    epilogue: { title: 'O reino está de pé', body: 'Seis casas, uma máquina. As habilidades não são uma lista: elas formam um sistema.', top: 'Voltar à capa', footer: 'Jorge Mesquita © 2026 · Homenagem inspirada em Game of Thrones, com arte e código originais.' },
     moodboard: 'Moodboard',
     sound: { on: 'Som', off: 'Som', label: 'Ligar ou desligar os sons da máquina', invite: '♪ Ative o som para ouvir a máquina', mixer: 'Regulador de som', master: 'Geral', music: 'Trilha', sfx: 'Efeitos' },
     reading: { on: 'Modo leitura · sem 3D', off: '◆ Voltar ao mapa 3D' },
@@ -261,7 +259,7 @@ export const copy = {
     stage: 'Construction',
     perfil: {
       title: 'Profile',
-      lead: 'I am Jorge Mesquita, studying Analysis and Systems Development (Senac) and Software Engineering (UNIFG) — a developer interested in the intersection of code, data, design and automation.',
+      lead: 'I am Jorge Mesquita, studying Analysis and Systems Development (Senac) and Software Engineering (UNIFG), a developer interested in the intersection of code, data, design and automation.',
       body: 'I am still at the beginning, but never standing still. My degree is the starting point for building things that are useful, beautiful and well-considered.',
       facts: [['Based in', 'Recife · Brazil'], ['Focus', 'Backend · Python · SQL · APIs · Automation'], ['Languages', 'Advanced English · Intermediate Spanish · Beginner French, Italian, Chinese and Russian'], ['Seeking', 'Internship or first junior Backend role']],
     },
@@ -272,7 +270,7 @@ export const copy = {
         { name: 'Analysis and Systems Development', institution: 'Faculdade Senac', detail: 'through Embarque Digital' },
         { name: 'Software Engineering', institution: 'UNIFG', detail: 'year 1 of 4' },
       ],
-      note: 'Two degrees at once. At the Citadel, every maester forges a chain link by link — these are the first links.',
+      note: 'Two degrees at once. At the Citadel, every maester forges a chain link by link, and these are the first links.',
     },
     cursos: {
       title: 'Courses',
@@ -294,7 +292,7 @@ export const copy = {
     },
     projetos: { title: 'Projects', lead: 'What has actually been forged.', stack: 'Stack' },
     contato: { title: 'Contact', lead: 'Send a raven. Reach me here:', github: 'GitHub', linkedin: 'LinkedIn', email: 'E-mail' },
-    epilogue: { title: 'The realm stands', body: 'Six houses, one machine. Skills are not a list: they form a system.', top: 'Back to cover', footer: 'Jorge Mesquita © 2026 · Tribute inspired by Game of Thrones — original art and code.' },
+    epilogue: { title: 'The realm stands', body: 'Six houses, one machine. Skills are not a list: they form a system.', top: 'Back to cover', footer: 'Jorge Mesquita © 2026 · Tribute inspired by Game of Thrones, with original art and code.' },
     moodboard: 'Moodboard',
     sound: { on: 'Sound', off: 'Sound', label: 'Toggle machine sounds', invite: '♪ Turn on sound to hear the machine', mixer: 'Sound mixer', master: 'Master', music: 'Score', sfx: 'Effects' },
     reading: { on: 'Reading mode · no 3D', off: '◆ Back to the 3D map' },

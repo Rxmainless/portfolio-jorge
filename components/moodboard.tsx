@@ -18,16 +18,19 @@ const SOUNDS: [string, string, string][] = [
   ['complete', 'Cidade completa', 'sino de latão + estandarte'],
 ]
 
+// Um contexto de áudio para a página inteira, criado no primeiro clique
+let boardCtx: AudioContext | null = null
+let scoreBus: GainNode | null = null
+
 /** Toca cada efeito isolado (o contexto de áudio nasce no clique). */
 function SoundBoard() {
   /** Tema do Reino: a forma inteira (16 compassos), uma camada nova a cada 2 compassos. Clicar de novo para. */
   const playScore = async () => {
-    const w = window as unknown as { __mbAudio?: AudioContext; __mbScore?: GainNode }
-    const ctx = (w.__mbAudio ??= new AudioContext())
+    const ctx = (boardCtx ??= new AudioContext())
     await ctx.resume()
-    if (w.__mbScore) {
-      const old = w.__mbScore
-      w.__mbScore = undefined
+    if (scoreBus) {
+      const old = scoreBus
+      scoreBus = null
       old.gain.setTargetAtTime(0, ctx.currentTime, 0.15)
       window.setTimeout(() => old.disconnect(), 800)
       return
@@ -36,8 +39,10 @@ function SoundBoard() {
     const bus = ctx.createGain()
     bus.gain.value = 0.7
     bus.connect(ctx.destination)
-    w.__mbScore = bus
-    window.setTimeout(() => { if (w.__mbScore === bus) w.__mbScore = undefined }, (FORM * BAR + 3) * 1000)
+    scoreBus = bus
+    window.setTimeout(() => {
+      if (scoreBus === bus) scoreBus = null
+    }, (FORM * BAR + 3) * 1000)
     const outs = Object.fromEntries(LAYERS.map((l) => [l, bus as AudioNode])) as unknown as Record<(typeof LAYERS)[number], AudioNode>
     const t0 = ctx.currentTime + 0.1
     Array.from({ length: FORM }, (_, bar) => {
@@ -46,8 +51,7 @@ function SoundBoard() {
     })
   }
   const play = async (id: string) => {
-    const w = window as unknown as { __mbAudio?: AudioContext }
-    const ctx = (w.__mbAudio ??= new AudioContext())
+    const ctx = (boardCtx ??= new AudioContext())
     await ctx.resume()
     const { STAGE_SFX } = await import('@/lib/realm/audio/sfx')
     const out = ctx.createGain()
@@ -274,7 +278,7 @@ export function Moodboard() {
         <div className="mb-head">
           <span className="n">06</span>
           <h2 id="mb-sound" className="display">Paisagem sonora</h2>
-          <p>Uma trilha original que se forma com o reino — cada casa construída acrescenta um instrumento — e a voz da máquina. Latão, ferro e pedra, sintetizados em tempo real (Web Audio API) — cada etapa da construção tem sua voz, e o ronco do motor segue a velocidade do scroll.</p>
+          <p>Uma trilha original que cresce com o reino (cada casa construída acrescenta um instrumento) e a voz da máquina. Latão, ferro e pedra sintetizados em tempo real com a Web Audio API. Cada etapa da construção tem seu som, e o ronco do motor acompanha a velocidade do scroll.</p>
         </div>
         <SoundBoard />
       </section>
@@ -284,7 +288,7 @@ export function Moodboard() {
 
 const WHY: Record<string, string> = {
   perfil: 'Identidade e raízes: quem eu sou, de onde venho.',
-  formacao: 'A Cidadela forma os meistres — a formação acadêmica.',
+  formacao: 'A Cidadela forma os meistres: a formação acadêmica.',
   cursos: '“Crescendo fortes”: cada curso é um elo a mais.',
   habilidades: 'O arsenal e o ouro da casa: o que sei usar.',
   projetos: '“Fogo e sangue”: o que já foi forjado de fato.',

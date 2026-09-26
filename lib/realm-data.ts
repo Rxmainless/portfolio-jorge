@@ -1,5 +1,5 @@
 /**
- * O Reino — tema do portfólio. Homenagem inspirada em Game of Thrones:
+ * O Reino: tema do portfólio. Homenagem inspirada em Game of Thrones:
  * casas, sedes e lemas são referências temáticas; toda arte (sigilos ASCII,
  * mapa, cidades) é original e procedural.
  *

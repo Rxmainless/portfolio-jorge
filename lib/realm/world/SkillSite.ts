@@ -10,7 +10,7 @@ import { DRUM_R, Winch } from './mechanics/Winch';
 import { Shaft } from './terrain/Shaft';
 
 /**
- * Estado contínuo da máquina — escrito pela timeline GSAP, lido a cada frame.
+ * Estado contínuo da máquina, escrito pela timeline GSAP, lido a cada frame.
  * Posições das peças vivem nos próprios Object3D (MechanicalPart).
  */
 export interface MachineState {

@@ -1,42 +1,41 @@
-# Avaliação — critérios de aprovação
+# Avaliação pelos critérios da atividade
 
-Regra do enunciado: aprovar somente se a nota for **maior que 8**. Nesta entrega o
-autor elevou o corte para **maior que 9**. Rubrica derivada do enunciado + o
-requisito de som; pesos somam 10. Notas baseadas nos testes listados abaixo.
+A atividade pede aprovação só com nota maior que 8. Para esta entrega o corte foi
+elevado para maior que 9. Os pesos somam 10 e cada nota se apoia no que foi testado.
 
-| # | Critério | Peso | Nota | Evidência |
-|---|---|---|---|---|
-| 1 | Telas: Capa, Perfil, Formação, Cursos, Habilidades, Projetos, Contato | 1,3 | 1,3 | As 7 telas, na ordem pedida, com conteúdo real: duas graduações (ADS no Senac via Embarque Digital; Engenharia de Software na UNIFG), 3 cursos (Cisco *Digital Safety and Security Awareness*, idiomas no Duolingo, linguagens no The Odin Project), 7 projetos, contato completo. |
-| 2 | Moodboard antes das telas: cores, tipografia, identidade + imagens, personalidade | 1,3 | 1,25 | `/moodboard`: paleta base + 6 paletas de casa, 3 famílias tipográficas e escala, sigilos ASCII, estandartes, ornamentos, render 3D ao vivo, 6 traços de personalidade e paisagem sonora com os 9 efeitos tocáveis. **Desconto:** sem fotografia (por direitos autorais, só imagem gerada). |
-| 3 | Tema Game of Thrones + ASCII goth: abertura com mapa, casas, bandeiras, símbolos | 1,3 | 1,2 | Abertura com voo sobre o continente, 6 casas com sede e lema, estandartes 3D içados, sigilos ASCII forjados, Muralha, rotas marítimas, scanlines/grão, réguas ASCII. **Desconto:** homenagem sem assets oficiais (decisão consciente). |
-| 4 | Animação das torres sendo criadas | 1,7 | 1,7 | Cada tela constrói uma cidade mecanicamente (engrenagens → freios → cabos → escotilha → plataforma → fundação → torre telescópica → edifícios → pontes), sincronizada ao scroll e reversível. |
-| 5 | Scroll com GSAP | 1,3 | 1,3 | ScrollTrigger (scrub) controla câmera e construção; SplitText nos títulos; ScrollToPlugin na navegação; painéis revelados por scroll. |
-| 6 | Qualidade técnica (build, desempenho, responsivo, acessibilidade) | 1,0 | 0,95 | `next build` com checagem de tipos; produção: 72 fps rolando a página inteira, pior frame 18,7 ms, console sem erros; 1440×900, 963 px e 375×812 sem rolagem horizontal; `prefers-reduced-motion`, ARIA, foco visível. **Desconto:** GPU de celular real não testada. |
-| 7 | Conteúdo real (sem inventar) | 0,9 | 0,85 | Fontes: projeto original, perfil e repositórios do GitHub, READMEs locais, certificado Cisco e informação do autor; habilidades separam o que tem repositório do que só está listado no perfil. **Desconto:** o LinkedIn não pôde ser lido (exige login). |
-| 8 | Som: trilha e efeitos das construções | 1,2 | 1,15 | Trilha adaptativa original (7 camadas, uma por casa, entrando conforme cada cidade é construída) + 9 efeitos sintetizados (Web Audio, sem arquivos), ronco do motor e cliques guiados pelo scroll, vento nos voos, rebobinar ao subir, ducking da trilha sob os efeitos; liga só com gesto do usuário e lembra a preferência. **Desconto:** validado por medição (RMS/pico) e por estado das camadas, não por audição. |
-| | **Total** | **10** | **9,70** | |
+| # | Critério | Peso | Nota | Evidência | Desconto |
+|---|---|---|---|---|---|
+| 1 | Telas: Capa, Perfil, Formação, Cursos, Habilidades, Projetos, Contato | 1,3 | 1,25 | As 7 telas na ordem pedida, com conteúdo real e capturas dos projetos que têm interface | Falta currículo em PDF |
+| 2 | Moodboard antes das telas: cores, tipografia, identidade e imagens, personalidade | 1,3 | 1,2 | `/moodboard`: paletas, 3 famílias tipográficas, sigilos ASCII, estandartes, render 3D ao vivo, personalidade e paisagem sonora | Sem fotografia |
+| 3 | Tema Game of Thrones + ASCII goth, abertura com mapa, casas, bandeiras e símbolos | 1,3 | 1,2 | Voo de abertura sobre o continente, 6 casas com sede e lema, estandartes, sigilos, Muralha, rotas marítimas | Homenagem sem material oficial, por direitos autorais |
+| 4 | Animação das torres sendo criadas | 1,7 | 1,7 | Cada tela constrói uma cidade em 9 etapas mecânicas, presa ao scroll e reversível | |
+| 5 | Scroll com GSAP | 1,3 | 1,3 | ScrollTrigger com scrub na câmera e na construção, SplitText, ScrollToPlugin | |
+| 6 | Qualidade técnica | 1,0 | 0,95 | Build estático com TypeScript estrito, 22 testes unitários, 12 testes no navegador (desktop e celular), CI, Lighthouse com acessibilidade, boas práticas e SEO em 100, qualidade adaptativa, modo sem 3D | Não testado em celular real; o desempenho medido pelo Lighthouse fica baixo com WebGL por software |
+| 7 | Conteúdo real, sem inventar | 0,9 | 0,85 | Perfil e repositórios do GitHub, READMEs dos projetos, certificado Cisco, informações do autor | LinkedIn não conferido (exige login) |
+| 8 | Som: trilha e efeitos das construções | 1,2 | 1,15 | Trilha original em 7 naipes que entram com as cidades, 9 efeitos sintetizados, regulador de volume; mixagem verificada em render offline nos testes | Falta a aprovação de ouvido do autor |
+| | **Total** | **10** | **9,60** | | |
 
-## Veredito
+**Resultado: aprovado, 9,60 > 9.**
 
-**Aprovado — 9,70 > 9.**
+## O que foi verificado
 
-## Verificação realizada
+- `pnpm build`: 9 rotas estáticas (`/`, `/en`, `/moodboard`, 404, ícones e cards).
+- `pnpm test`: cada naipe da trilha e cada efeito renderizados offline, sem valores
+  inválidos e sem clipping; orquestra completa abaixo de 0,9 de pico; PT e EN com a
+  mesma estrutura; links válidos.
+- `pnpm test:e2e`, em desktop e celular: rolagem completa até 6/6 cidades sem erros
+  no console, página sem WebGL, modo leitura, regulador de som, `/en` com `lang` e
+  `hreflang`, moodboard e 404.
+- Emulador do Cloudflare Pages (`wrangler pages dev out`): rotas, tipos de arquivo,
+  cabeçalhos de cache e segurança, 404.
+- Lighthouse, celular e desktop: acessibilidade, boas práticas e SEO em 100. Desempenho
+  47 (celular) e 58 (desktop), limitado pelo WebGL emulado na CPU durante o teste;
+  FCP 0,7 s e LCP 1,3 s no desktop, sem deslocamento de layout.
 
-- Build de produção (`next build`) com TypeScript estrito: ok, 2 rotas estáticas.
-- Produção (`next start`), aba limpa: rolagem completa em tempo real → 6/6 cidades
-  construídas, epílogo com rótulos, 72 fps, nenhum erro de console.
-- Estados da jornada: capa, voo, cada uma das 6 cidades (meio e fim da construção), epílogo.
-- Som, render offline de cada efeito: todos audíveis, sem NaN, pico ≤ 0,59 (sem clipping);
-  mixagem rebalanceada (engrenagens 3×, cliques 3,6×).
-- Som ao vivo: clique real liga o AudioContext; scroll pela casa Stark → etapas na ordem;
-  salto pelo menu → 3 sons (antes 38); scroll rápido → 5; subir → rebobina sem sons de etapa.
-- Trilha, render offline: 7 camadas sem NaN, orquestra completa com pico 0,48; mixagem
-  rebalanceada (coro 2,2×, harpa 1,6×, tambores −25%). Ao vivo: capa = só pedal;
-  após Winterfell entra o violoncelo; epílogo = 7 camadas; voltar ao topo = só pedal.
-- Identidade de compartilhamento: favicon (engrenagem de latão), ícone Apple e card
-  Open Graph 1200×630 gerados e conferidos visualmente.
-- Religar som com preferência salva sem o clique no botão desligar em seguida (bug corrigido).
-- Idioma EN: título, capa, menu, cursos e formação traduzidos; volta para PT.
-- Moodboard: 5 seções + paisagem sonora, 6 sigilos, 6 estandartes, prévia 3D, botões de som.
-- Links externos: GitHub, repositórios e Dash Digital respondem 200 (LinkedIn bloqueia robôs).
-- Mobile 375×812: cabeçalho cabe (J·M, 6/6, som, idioma, menu), sem rolagem horizontal.
+## Para chegar a 10
+
+- Currículo em PDF para baixar.
+- Fotografias com licença livre ou próprias no moodboard.
+- Conferir o texto do LinkedIn.
+- Teste num celular real depois da publicação.
+- Ouvir e aprovar a trilha.

@@ -16,7 +16,7 @@ import { SoundMixer } from './sound-mixer'
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin, SplitText)
 
-/** Lado do painel por seção — a câmera enquadra a cidade no lado oposto. */
+/** Lado do painel por seção. A câmera enquadra a cidade no lado oposto. */
 const SIDES: ('left' | 'right')[] = houses.map((_, i) => (i % 2 === 0 ? 'left' : 'right'))
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 const smooth = (v: number) => v * v * (3 - 2 * v)
@@ -41,16 +41,11 @@ export function Portfolio({ initialLocale = 'pt-BR' }: { initialLocale?: Locale 
   const [soundOn, setSoundOn] = useState(false)
   const [audio, setAudio] = useState<RealmAudio | null>(null)
 
-  // ———————————————————————————————— som (Web Audio, só após um gesto do usuário)
+  // Som (Web Audio, só após um gesto do usuário)
   useEffect(() => {
     const audio = new RealmAudio()
     audioRef.current = audio
     setAudio(audio)
-    if (process.env.NODE_ENV !== 'production') {
-      Object.assign(window, { __audio: audio })
-      import('@/lib/realm/audio/sfx').then((m) => Object.assign(window, { __sfx: m })) // validação offline
-      import('@/lib/realm/audio/score').then((m) => Object.assign(window, { __score: m }))
-    }
     // Preferência salva: religa no primeiro clique/tecla (autoplay exige gesto)
     let cleanup = () => {}
     if (window.localStorage.getItem('jorge-sound') === 'on') {
@@ -102,7 +97,6 @@ export function Portfolio({ initialLocale = 'pt-BR' }: { initialLocale?: Locale 
 
   const onReady = useCallback((scene: RealmScene) => {
     setRealm(scene)
-    if (process.env.NODE_ENV !== 'production') Object.assign(window, { __realm: scene, __gsap: gsap, __ST: ScrollTrigger }) // validação
   }, [])
 
   const onNoWebGL = useCallback(() => setNoWebGL(true), [])
@@ -142,7 +136,7 @@ export function Portfolio({ initialLocale = 'pt-BR' }: { initialLocale?: Locale 
     return () => ctx.revert()
   }, [])
 
-  // ———————————————————————————————— coreografia de scroll (GSAP ScrollTrigger)
+  // Coreografia de scroll (GSAP ScrollTrigger)
   useEffect(() => {
     if (!realm || !rootRef.current) return
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -152,7 +146,7 @@ export function Portfolio({ initialLocale = 'pt-BR' }: { initialLocale?: Locale 
 
     const ctx = gsap.context(() => {
       // Abertura: o voo sobre o mapa enquanto o título é forjado
-      // (só na primeira montagem — trocar o idioma não repete a abertura)
+      // (só na primeira montagem; trocar o idioma não repete a abertura)
       const intro = introPlayed.current ? null : realm.playIntro()
       introPlayed.current = true
       if (intro) intro.eventCallback('onComplete', () => (introDone = true))
@@ -295,7 +289,7 @@ export function Portfolio({ initialLocale = 'pt-BR' }: { initialLocale?: Locale 
 
       <header className="site-header">
         <a href="#capa" onClick={go('capa')} className="wordmark">
-          J<span aria-hidden="true">·</span>M<span className="sr-only"> — Jorge Mesquita, capa</span>
+          J<span aria-hidden="true">·</span>M<span className="sr-only">, Jorge Mesquita, capa</span>
         </a>
         <nav className={menuOpen ? 'nav-links is-open' : 'nav-links'} aria-label="Seções">
           {houses.map((h, i) => (
@@ -336,7 +330,7 @@ export function Portfolio({ initialLocale = 'pt-BR' }: { initialLocale?: Locale 
         <p className="cover-lead cover-reveal">{copy.cover.lead}</p>
         <div className="cover-houses cover-reveal" aria-label="Casas">
           {houses.map((h) => (
-            <a key={h.section} href={`#${h.section}`} onClick={go(h.section)} style={{ ['--c' as string]: h.color }} aria-label={`${copy.nav[h.section]} — ${h.house}`}>
+            <a key={h.section} href={`#${h.section}`} onClick={go(h.section)} style={{ ['--c' as string]: h.color }} aria-label={`${copy.nav[h.section]}: ${h.house}`}>
               <AsciiSigil sigil={h.sigil} color={h.color} label={h.house} />
             </a>
           ))}

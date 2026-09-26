@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-/** Paleta central — industrial / arquitetônica. */
+/** Paleta central: industrial / arquitetônica. */
 export const palette = {
   background: 0x0a0a0b,
   fog: 0x0c0c0d,

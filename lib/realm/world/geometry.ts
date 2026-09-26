@@ -24,7 +24,7 @@ export function rectCorners(h: RectHole): [number, number][] {
 
 /**
  * Laje horizontal com furos retangulares (topo em y=0, base em y=-thickness).
- * Usada para terreno, deck da plataforma e fundação — as peças emergem pelos furos.
+ * Usada para terreno, deck da plataforma e fundação: as peças emergem pelos furos.
  */
 export function slabWithHoles(width: number, depth: number, thickness: number, holes: RectHole[] = []): THREE.BufferGeometry {
   const shape = rectShape(0, 0, width, depth);
@@ -58,7 +58,7 @@ export function polygonSlab(points: [number, number][], thickness: number): THRE
   return geo;
 }
 
-/** Cache de geometrias primitivas — peças idênticas compartilham a mesma geometria. */
+/** Cache de geometrias primitivas: peças idênticas compartilham a mesma geometria. */
 const boxCache = new Map<string, THREE.BoxGeometry>();
 export function box(w: number, h: number, d: number): THREE.BoxGeometry {
   const key = `${w.toFixed(3)}|${h.toFixed(3)}|${d.toFixed(3)}`;

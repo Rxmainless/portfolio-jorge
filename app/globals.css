@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* ————————————————————————————————————————————— tokens do reino */
+/* Tokens do reino */
 :root {
   --obsidian: #0b0a09;
   --iron: #2b2a28;
@@ -33,7 +33,7 @@ h1, h2, h3, h4, p { margin: 0; }
 .grain::before { background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.16) 2px 3px); mix-blend-mode: multiply; }
 .grain::after { opacity: 0.05; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
 
-/* ————————————————————————————————————————————— elementos comuns */
+/* Elementos comuns */
 .eyebrow { font: 500 11px/1.4 var(--mono); letter-spacing: 0.22em; text-transform: uppercase; color: var(--dim); }
 .display { font-family: var(--display); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; line-height: 0.95; }
 .ornament { display: flex; align-items: center; gap: 14px; color: var(--brass); font: 12px var(--mono); letter-spacing: 0.3em; }
@@ -41,7 +41,7 @@ h1, h2, h3, h4, p { margin: 0; }
 .ascii-sigil { display: block; width: 100%; height: 100%; }
 .ascii-rule { font: 12px/1 var(--mono); color: var(--faint); white-space: nowrap; overflow: hidden; letter-spacing: 0.1em; }
 
-/* ————————————————————————————————————————————— moodboard */
+/* Moodboard */
 .mb { max-width: 1320px; margin: 0 auto; padding: 0 5vw 12rem; }
 .mb-hero { min-height: 88vh; display: grid; align-content: center; gap: 2rem; border-bottom: 1px solid var(--line); }
 .mb-hero h1 { font-size: clamp(3.2rem, 8vw, 8rem); }
