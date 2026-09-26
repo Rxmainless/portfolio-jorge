@@ -73,6 +73,9 @@ test('endereço desconhecido mostra a página 404 do reino', async ({ page }) =>
 
 test('modo leitura desliga o 3D, é lembrado e volta ao mapa', async ({ page }) => {
   await page.goto('/')
+  // O botão só existe quando há 3D para desligar
+  const webgl = await page.evaluate(() => !!document.createElement('canvas').getContext('webgl2'))
+  test.skip(!webgl, 'navegador sem WebGL: não há mapa 3D para desligar')
   await expect(page.locator('canvas').first()).toBeAttached({ timeout: 30_000 })
   await page.getByRole('button', { name: /modo leitura/i }).click()
   await expect(page.locator('main')).toHaveClass(/is-flat/)
