@@ -7,7 +7,11 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 
 # Imagens geradas no build sem extensão (card de compartilhamento e ícone Apple)
-/opengraph-image
+/opengraph-image*
+  Content-Type: image/png
+  Cache-Control: public, max-age=86400
+
+/en/opengraph-image*
   Content-Type: image/png
   Cache-Control: public, max-age=86400
 

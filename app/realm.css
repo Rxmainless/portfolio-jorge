@@ -181,3 +181,5 @@
   .reading-toggle, .nav-links, .panel-rule, .pending, .facts dt, .chain li.link-forged small, .chain li.link-forged em, .skill-group li small, .skill-legend, .status, .project-stack { font-size: 12px; }
   .sound-toggle, .language-toggle { letter-spacing: 0.04em; }
 }
+.not-found { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 1.4rem; padding: 0 6vw; text-align: center; }
+.not-found h1 { font-size: clamp(1.8rem, 4.6vw, 3.4rem); letter-spacing: 0.06em; max-width: 18ch; }

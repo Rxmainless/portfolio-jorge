@@ -51,13 +51,24 @@ test('o regulador de som abre, muda e lembra o volume', async ({ page }) => {
   await expect(page.getByRole('slider')).toHaveCount(0)
 })
 
-test('inglês e moodboard', async ({ page }) => {
+test('inglês tem endereço próprio e o moodboard abre', async ({ page }) => {
   await page.goto('/')
   await page.locator('.language-toggle').click()
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await expect(page).toHaveURL(/\/en$/)
+  await page.goto('/en')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await expect(page).toHaveTitle(/Realm of Systems/)
+  await expect(page.locator('link[rel=alternate][hreflang=pt-BR]')).toHaveCount(1)
   await page.goto('/moodboard')
   await expect(page.locator('h1')).toBeVisible()
   await expect(page.getByRole('button', { name: /Tema do Reino/i })).toBeVisible()
+})
+
+test('endereço desconhecido mostra a página 404 do reino', async ({ page }) => {
+  const res = await page.goto('/estrada-perdida')
+  expect(res?.status()).toBe(404)
+  await expect(page.getByRole('link', { name: /voltar ao reino/i })).toBeVisible()
 })
 
 test('modo leitura desliga o 3D, é lembrado e volta ao mapa', async ({ page }) => {

@@ -21,8 +21,9 @@ const SIDES: ('left' | 'right')[] = houses.map((_, i) => (i % 2 === 0 ? 'left' :
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
 const smooth = (v: number) => v * v * (3 - 2 * v)
 
-export function Portfolio() {
-  const [locale, setLocale] = useState<Locale>('pt-BR')
+/** `initialLocale` vem da rota: / em português, /en em inglês. */
+export function Portfolio({ initialLocale = 'pt-BR' }: { initialLocale?: Locale }) {
+  const [locale, setLocale] = useState<Locale>(initialLocale)
   const [menuOpen, setMenuOpen] = useState(false)
   const [realm, setRealm] = useState<RealmScene | null>(null)
   // Página plana (só o conteúdo, sigilos revelados): sem WebGL ou por escolha (modo leitura)
@@ -39,11 +40,6 @@ export function Portfolio() {
   const audioRef = useRef<RealmAudio | null>(null)
   const [soundOn, setSoundOn] = useState(false)
   const [audio, setAudio] = useState<RealmAudio | null>(null)
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem('jorge-locale')
-    if (saved === 'pt-BR' || saved === 'en') setLocale(saved)
-  }, [])
 
   // ———————————————————————————————— som (Web Audio, só após um gesto do usuário)
   useEffect(() => {
@@ -96,8 +92,11 @@ export function Portfolio() {
     }
   }
   useEffect(() => {
-    window.localStorage.setItem('jorge-locale', locale)
     document.documentElement.lang = locale
+    // O endereço acompanha o idioma (/ ou /en) sem recarregar o mapa
+    const path = locale === 'en' ? '/en' : '/'
+    const current = window.location.pathname.replace(/\/$/, '') || '/'
+    if (current !== path) window.history.replaceState(window.history.state, '', path + window.location.hash)
     document.title = copy.metaTitle
   }, [locale, copy.metaTitle])
 
