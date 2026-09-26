@@ -210,7 +210,8 @@ export function Portfolio({ initialLocale = 'pt-BR' }: { initialLocale?: Locale 
     let raf = 0
     let hudText = ''
     let hudOpacity = ''
-    const labelShown = houses.map(() => false)
+    // Começa como "visível" para o primeiro quadro esconder de fato os rótulos fora de hora
+    const labelShown = houses.map(() => true)
     const loop = () => {
       const j = journeyRef.current
       const near = Math.round(j) - 1

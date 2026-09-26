@@ -10,7 +10,7 @@
 @keyframes forge { 50% { opacity: 0.35; } }
 
 .map-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.map-label { position: absolute; left: 0; top: 0; display: grid; justify-items: center; gap: 2px; padding-bottom: 10px; transition: opacity 0.5s; will-change: transform; text-align: center; white-space: nowrap; }
+.map-label { position: absolute; left: 0; top: 0; opacity: 0; display: grid; justify-items: center; gap: 2px; padding-bottom: 10px; transition: opacity 0.5s; will-change: transform; text-align: center; white-space: nowrap; }
 .map-label::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 1px; height: 7px; background: var(--c); }
 .map-label span { font: 600 13px var(--display); letter-spacing: 0.16em; text-transform: uppercase; color: var(--parchment); text-shadow: 0 0 12px #000; }
 .map-label small { font: 11px var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--c); }
