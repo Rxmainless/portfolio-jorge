@@ -194,7 +194,7 @@ export const copy = {
       title: 'Perfil',
       photoAlt: 'Retrato de Jorge Mesquita em preto e branco, de perfil',
       lead: 'Sou Jorge Mesquita, desenvolvedor backend. Estudo Análise e Desenvolvimento de Sistemas no Senac e Engenharia de Software na UNIFG.',
-      body: 'Trabalho com Python, SQL e automação de processos: scripts e ferramentas que tiram trabalho manual do caminho, integração de APIs e manipulação de dados. Estudo também Linux, programação orientada a objetos e boas práticas de desenvolvimento. A disciplina vem de antes do código, da minha jornada na Academia Nacional de Polícia.',
+      body: 'Trabalho com Python, SQL e automação de processos: scripts e ferramentas que tiram trabalho manual do caminho, integração de APIs e manipulação de dados. Estudo também Linux, programação orientada a objetos e boas práticas de desenvolvimento.',
       facts: [['Base', 'Recife · PE · aberto a remoto'], ['Foco', 'Backend · Python · SQL · APIs · Automação'], ['Idiomas', 'Inglês avançado · Espanhol intermediário · Francês, italiano, chinês e russo (iniciante)'], ['Busca', 'Vaga de Desenvolvedor Backend Júnior/Pleno · freelances e colaborações']],
     },
     formacao: {
@@ -268,7 +268,7 @@ export const copy = {
       title: 'Profile',
       photoAlt: 'Black and white side portrait of Jorge Mesquita',
       lead: 'I am Jorge Mesquita, a backend developer. I study Analysis and Systems Development at Senac and Software Engineering at UNIFG.',
-      body: 'I work with Python, SQL and process automation: scripts and tools that take manual work out of the way, API integration and data handling. I also study Linux, object-oriented programming and good development practices. The discipline comes from before code, from my time at the Brazilian National Police Academy.',
+      body: 'I work with Python, SQL and process automation: scripts and tools that take manual work out of the way, API integration and data handling. I also study Linux, object-oriented programming and good development practices.',
       facts: [['Based in', 'Recife · Brazil · open to remote'], ['Focus', 'Backend · Python · SQL · APIs · Automation'], ['Languages', 'Advanced English · Intermediate Spanish · Beginner French, Italian, Chinese and Russian'], ['Seeking', 'Junior/Mid Backend Developer role · freelance and collaborations']],
     },
     formacao: {
